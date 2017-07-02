@@ -4,3 +4,4 @@ build
 .gradle
 challenges/*.txt
 record/localstore
+config/credentials.config
