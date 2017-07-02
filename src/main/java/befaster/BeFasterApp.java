@@ -1,7 +1,10 @@
 package befaster;
 
 import befaster.runner.ClientRunner;
+import befaster.runner.ConfigNotFoundException;
 import befaster.runner.RunnerAction;
+
+import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 
 public class BeFasterApp {
     /**
@@ -43,10 +46,11 @@ public class BeFasterApp {
      *                                      After you fix the problem, you should deploy a new version into production.
      *
      **/
-    public static void main(String[] args) {
-        ClientRunner.forUserWithEmail("your_email_here")
+    public static void main(String[] args) throws ConfigNotFoundException {
+        ClientRunner.forUser(readFromConfigFile("tdl_username"))
                 .withServerHostname("run.befaster.io")
                 .withActionIfNoArgs(RunnerAction.testConnectivity)
                 .start(args);
     }
+
 }
