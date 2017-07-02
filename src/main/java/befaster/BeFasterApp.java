@@ -47,7 +47,7 @@ public class BeFasterApp {
      *
      **/
     public static void main(String[] args) throws ConfigNotFoundException {
-        ClientRunner.forUser(readFromConfigFile("tdl_username"))
+        ClientRunner.forUsername(readFromConfigFile("tdl_username"))
                 .withServerHostname("run.befaster.io")
                 .withActionIfNoArgs(RunnerAction.testConnectivity)
                 .start(args);

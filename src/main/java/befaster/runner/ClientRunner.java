@@ -18,14 +18,14 @@ import static tdl.client.actions.ClientActions.publish;
 public class ClientRunner {
     private String hostname;
     private RunnerAction defaultRunnerAction;
-    private final String userId;
+    private final String username;
 
-    public static ClientRunner forUser(@SuppressWarnings("SameParameterValue") String userId) {
-        return new ClientRunner(userId);
+    public static ClientRunner forUsername(@SuppressWarnings("SameParameterValue") String username) {
+        return new ClientRunner(username);
     }
 
-    private ClientRunner(String userId) {
-        this.userId = userId;
+    private ClientRunner(String username) {
+        this.username = username;
     }
 
     public ClientRunner withServerHostname(@SuppressWarnings("SameParameterValue") String hostname) {
@@ -44,7 +44,7 @@ public class ClientRunner {
 
         Client client = new Client.Builder()
                 .setHostname(hostname)
-                .setUniqueId(userId)
+                .setUniqueId(username)
                 .create();
 
         ProcessingRules processingRules = new ProcessingRules() {{
