@@ -8,4 +8,4 @@
 ## 2. How to start
 
 - Open `src/main/java/befaster/BeFasterApp.java`
-- Read the documentation
+- Read the comments as documentation, they will guide through the rest of the setup

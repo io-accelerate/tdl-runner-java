@@ -14,6 +14,8 @@ repositories {
 
 dependencies {
     compile 'com.google.guava:guava:18.0'
+
+    //TODO Don't forget to also update the Maven pom.xml
     compile 'ro.ghionoiu:tdl-client-java:0.12.1'
 
     testCompile ('junit:junit:4.12') {
