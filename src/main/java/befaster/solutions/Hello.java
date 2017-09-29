@@ -1,7 +1,9 @@
 package befaster.solutions;
 
+import befaster.runner.SolutionNotImplementedException;
+
 public class Hello {
     public static String hello(String friendName) {
-        throw new RuntimeException("method not implemented");
+        throw new SolutionNotImplementedException();
     }
 }
