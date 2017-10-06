@@ -6,3 +6,4 @@ challenges/*.txt
 record/localstore
 config/credentials.config
 out
+target
