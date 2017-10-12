@@ -31,7 +31,7 @@ dependencies {
 
 apply plugin: 'application'
 
-mainClassName = 'befaster.BeFasterApp'
+mainClassName = 'befaster.Start'
 
 run {
     standardInput = System.in
