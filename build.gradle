@@ -14,9 +14,11 @@ repositories {
 
 dependencies {
     //TODO Don't forget to also update the Maven pom.xml
+    compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0'
     compile 'ro.ghionoiu:tdl-client-java:0.12.1'
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.google.guava:guava:18.0'
+
 
     testCompile ('junit:junit:4.12') {
         exclude module : 'hamcrest-core'
