@@ -76,12 +76,12 @@ public class ClientRunner {
                 System.out.println(response);
 
                 if (line.equals("start")) {
-                    readRunnerActionFromArgs(new String[]{"getNewRoundDescription"});
+                    readRunnerActionFrom("getNewRoundDescription");
                 } else if (line.equals("done")) {
-                    readRunnerActionFromArgs(new String[]{"deployToProduction"});
+                    readRunnerActionFrom("deployToProduction");
                 }
             } else {
-                readRunnerActionFromArgs(new String[]{line});
+                readRunnerActionFrom(line);
             }
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not encode the URL - badly formed URL?", e);
@@ -100,8 +100,17 @@ public class ClientRunner {
         }
     }
 
+    private void readRunnerActionFrom(String arg) {
+        RunnerAction runnerAction = extractActionFrom(arg).orElse(defaultRunnerAction);
+        readRunnerAction(runnerAction);
+    }
+
     private void readRunnerActionFromArgs(String[] args) {
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
+        readRunnerAction(runnerAction);
+    }
+
+    private void readRunnerAction(RunnerAction runnerAction) {
         System.out.println("Chosen action is: "+runnerAction.name());
 
         Client client = new Client.Builder()
@@ -138,6 +147,10 @@ public class ClientRunner {
 
     private static Optional<RunnerAction> extractActionFrom(String[] args) {
         String firstArg = args.length > 0 ? args[0] : null;
+        return extractActionFrom(firstArg);
+    }
+
+    private static Optional<RunnerAction> extractActionFrom(String firstArg) {
         return Arrays.stream(RunnerAction.values())
                 .filter(runnerAction -> runnerAction.name().equalsIgnoreCase(firstArg))
                 .findFirst();
