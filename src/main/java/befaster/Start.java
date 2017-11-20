@@ -51,6 +51,7 @@ public class Start {
      *
      **/
     public static void main(String[] args) throws ConfigNotFoundException {
+
         ClientRunner.forUsername(readFromConfigFile("tdl_username"))
                 .withServerHostname("run.befaster.io")
                 .withActionIfNoArgs(RunnerAction.testConnectivity)

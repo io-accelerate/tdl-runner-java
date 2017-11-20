@@ -1,9 +1,13 @@
 package befaster.runner;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tdl.client.Client;
 import tdl.client.ProcessingRules;
 import tdl.client.abstractions.UserImplementation;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +17,7 @@ import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static tdl.client.actions.ClientActions.publish;
 
 public class ClientRunner {
+    private final Logger LOG = LoggerFactory.getLogger(ClientRunner.class);
     private String hostname;
     private RunnerAction defaultRunnerAction;
     private final String username;
@@ -49,6 +54,10 @@ public class ClientRunner {
             return;
         }
 
+        if (useExperimentalFeature()) {
+            startUpAndTestChallengeServerClient();
+        }
+
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
         System.out.println("Chosen action is: "+runnerAction.name());
 
@@ -73,6 +82,25 @@ public class ClientRunner {
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
     }
 
+    private void startUpAndTestChallengeServerClient() {
+
+        try {
+            String journeyId = readFromConfigFile("tdl_journey_id");
+            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, true);
+            System.out.println(challengeServerClient.getJourneyProgress());
+            System.out.println(challengeServerClient.getAvailableActions());
+        } catch (IOException e) {
+            String message = "Could not encode the URL - badly formed URL?";
+            LOG.error(message, e);
+        } catch (UnirestException e) {
+            String message = "Something went wrong with communicating with the server. Try again.";
+            LOG.error(message, e);
+        } catch (ConfigNotFoundException e) {
+            String message = "Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.";
+            LOG.error(message, e);
+        }
+    }
+
     private static Optional<RunnerAction> extractActionFrom(String[] args) {
         String firstArg = args.length > 0 ? args[0] : null;
         return Arrays.stream(RunnerAction.values())
@@ -92,4 +120,7 @@ public class ClientRunner {
         }
     }
 
+    private boolean useExperimentalFeature() {
+        return Boolean.parseBoolean(readFromConfigFile("tdl_enable_experimental", "false"));
+    }
 }
