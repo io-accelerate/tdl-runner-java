@@ -33,9 +33,9 @@ public class ChallengeServerClient {
         this.acceptHeader = disableColours ? "text/not-coloured" : "text/coloured";
     }
 
-    public String sendAction(String name) throws IOException, UnirestException, ClientErrorException, ServerErrorException, OtherServerException {
+    String sendAction(String name) throws IOException, UnirestException, ClientErrorException, ServerErrorException, OtherServerException {
         String encodedPath = URLEncoder.encode(this.base64JourneyId, "UTF8");
-        String url = String.format("http://%s:%d/action/%s", this.url, port, encodedPath);
+        String url = String.format("http://%s:%d/action/%s/%s", this.url, port, name, encodedPath);
         HttpResponse<String> actionResponse =  Unirest.post(url)
                 .header("accept", this.acceptHeader)
                 .header("charset", "UTF8")
@@ -74,7 +74,7 @@ public class ChallengeServerClient {
         return get(AVAILABLE_ACTIONS);
     }
 
-    String get(String name) throws UnsupportedEncodingException, UnirestException {
+    private String get(String name) throws UnsupportedEncodingException, UnirestException {
         String encodedPath = URLEncoder.encode(this.base64JourneyId, UTF_8);
         String url = String.format("http://%s:%d/%s/%s", this.url, port, name, encodedPath);
         return getStringResponse(url);
