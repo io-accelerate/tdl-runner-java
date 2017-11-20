@@ -1,6 +1,5 @@
 package befaster;
 
-import befaster.runner.ChallengeServerClient;
 import befaster.runner.ClientRunner;
 import befaster.runner.ConfigNotFoundException;
 import befaster.runner.RunnerAction;
@@ -8,9 +7,6 @@ import befaster.solutions.Checkout;
 import befaster.solutions.FizzBuzz;
 import befaster.solutions.Hello;
 import befaster.solutions.Sum;
-import com.mashape.unirest.http.exceptions.UnirestException;
-
-import java.io.IOException;
 
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.TypeConversion.asInt;
@@ -57,8 +53,7 @@ public class Start {
     public static void main(String[] args) throws ConfigNotFoundException {
 
         ClientRunner.forUsername(readFromConfigFile("tdl_username"))
-                .withServerHostname("localhost")
-                .withJourneyId(readFromConfigFile("tdl_journey_id"))
+                .withServerHostname("run.befaster.io")
                 .withActionIfNoArgs(RunnerAction.testConnectivity)
                 .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
                 .withSolutionFor("hello", p -> Hello.hello(p[0]))

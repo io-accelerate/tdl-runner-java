@@ -43,19 +43,36 @@ public class ChallengeServerClient {
                 .asString();
         LOG.debug("post request for action \"" + name + "\" was sent, response status is: "
                 +actionResponse.getStatus()+" - " + actionResponse.getStatusText());
-        String response = actionResponse.getBody().trim();
-        Response.Status.Family responseFamily = Response.Status.Family.familyOf(actionResponse.getStatus());
-        switch(responseFamily){
-            case CLIENT_ERROR:
-                throw new ClientErrorException();
-            case SERVER_ERROR:
-                throw new ServerErrorException();
-            case REDIRECTION:
-            case INFORMATIONAL:
-            case OTHER:
-                throw new OtherServerException();
+
+        int responseInt = actionResponse.getStatus();
+        if (isClientError(responseInt)) {
+            throw new ClientErrorException();
+        } else if (isServerError(responseInt)) {
+            throw new ServerErrorException();
+        } else if (isOtherErrorResponse(responseInt)) {
+            throw new OtherServerException();
         }
-        return response;
+        return actionResponse.getBody().trim();
+    }
+
+    private boolean isOtherErrorResponse(int responseInt) {
+        return responseInt < 200 || responseInt > 300;
+    }
+
+    private boolean isServerError(int responseInt) {
+        return responseInt >= 500 && responseInt < 600;
+    }
+
+    private boolean isClientError(int responseInt) {
+        return responseInt >= 400 && responseInt < 500;
+    }
+
+    String getJourneyProgress() throws UnsupportedEncodingException, UnirestException {
+        return get(JOURNEY_PROGRESS_ENDPOINT);
+    }
+
+    String getAvailableActions() throws UnsupportedEncodingException, UnirestException {
+        return get(AVAILABLE_ACTIONS);
     }
 
     String get(String name) throws UnsupportedEncodingException, UnirestException {

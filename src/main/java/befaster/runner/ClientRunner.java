@@ -1,6 +1,8 @@
 package befaster.runner;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tdl.client.Client;
 import tdl.client.ProcessingRules;
 import tdl.client.abstractions.UserImplementation;
@@ -11,14 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static befaster.runner.ChallengeServerClient.AVAILABLE_ACTIONS;
-import static befaster.runner.ChallengeServerClient.JOURNEY_PROGRESS_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static tdl.client.actions.ClientActions.publish;
 
 public class ClientRunner {
+    private final Logger LOG = LoggerFactory.getLogger(ClientRunner.class);
     private String hostname;
-    private String journeyId;
     private RunnerAction defaultRunnerAction;
     private final String username;
     private final Map<String, UserImplementation> solutions;
@@ -47,11 +47,6 @@ public class ClientRunner {
         return this;
     }
 
-    public ClientRunner withJourneyId(String journeyId) {
-        this.journeyId = journeyId;
-        return this;
-    }
-
 
     public void start(String[] args) {
         if(!isRecordingSystemOk()) {
@@ -59,17 +54,12 @@ public class ClientRunner {
             return;
         }
 
-        ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, true);
-
-        try {
-            System.out.println(challengeServerClient.get(JOURNEY_PROGRESS_ENDPOINT));
-            System.out.println(challengeServerClient.get(AVAILABLE_ACTIONS));
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Could not encode the URL - badly formed URL?");
-        } catch (UnirestException e) {
-            e.printStackTrace();
-            System.out.println("Something went wrong with communicating with the server. Try again.");
+        if (useExperimentalFeature()) {
+            try {
+                startUpAndTestChallengeServerClient();
+            } catch (ConfigNotFoundException e) {
+                LOG.error("Could not start up challenge client", e);
+            }
         }
 
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
@@ -96,6 +86,22 @@ public class ClientRunner {
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
     }
 
+    private void startUpAndTestChallengeServerClient() throws ConfigNotFoundException {
+        String journeyId = readFromConfigFile("tdl_journey_id");
+        ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, true);
+
+        try {
+            System.out.println(challengeServerClient.getJourneyProgress());
+            System.out.println(challengeServerClient.getAvailableActions());
+        } catch (IOException e) {
+            String message = "Could not encode the URL - badly formed URL?";
+            LOG.error(message, e);
+        } catch (UnirestException e) {
+            String message = "Something went wrong with communicating with the server. Try again.";
+            LOG.error(message, e);
+        }
+    }
+
     private static Optional<RunnerAction> extractActionFrom(String[] args) {
         String firstArg = args.length > 0 ? args[0] : null;
         return Arrays.stream(RunnerAction.values())
@@ -113,5 +119,9 @@ public class ClientRunner {
         } else {
             return true;
         }
+    }
+
+    private boolean useExperimentalFeature() {
+        return Boolean.parseBoolean(readFromConfigFile("tdl_enable_experimental", "false"));
     }
 }
