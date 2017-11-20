@@ -1,19 +1,24 @@
 package befaster.runner;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import tdl.client.Client;
 import tdl.client.ProcessingRules;
 import tdl.client.abstractions.UserImplementation;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static befaster.runner.ChallengeServerClient.AVAILABLE_ACTIONS;
+import static befaster.runner.ChallengeServerClient.JOURNEY_PROGRESS_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static tdl.client.actions.ClientActions.publish;
 
 public class ClientRunner {
     private String hostname;
+    private String journeyId;
     private RunnerAction defaultRunnerAction;
     private final String username;
     private final Map<String, UserImplementation> solutions;
@@ -42,11 +47,29 @@ public class ClientRunner {
         return this;
     }
 
+    public ClientRunner withJourneyId(String journeyId) {
+        this.journeyId = journeyId;
+        return this;
+    }
+
 
     public void start(String[] args) {
         if(!isRecordingSystemOk()) {
             System.out.println("Please run `record_screen_and_upload` before continuing.");
             return;
+        }
+
+        ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, true);
+
+        try {
+            System.out.println(challengeServerClient.get(JOURNEY_PROGRESS_ENDPOINT));
+            System.out.println(challengeServerClient.get(AVAILABLE_ACTIONS));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Could not encode the URL - badly formed URL?");
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            System.out.println("Something went wrong with communicating with the server. Try again.");
         }
 
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
@@ -91,5 +114,4 @@ public class ClientRunner {
             return true;
         }
     }
-
 }

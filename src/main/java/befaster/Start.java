@@ -56,22 +56,9 @@ public class Start {
      **/
     public static void main(String[] args) throws ConfigNotFoundException {
 
-        // Included as part of credentials config?
-        // this can be created from: username|sessionId|transport type
-        String journeyId = "dGRsLXRlc3QtZGVtbzI5MDl8U1VNLEhMTyxGSVo=";
-        ChallengeServerClient client = new ChallengeServerClient("localhost", journeyId, true);
-
-        try {
-            System.out.println(client.getJourneyProgress());
-            System.out.println(client.getAvailableActions());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (UnirestException e) {
-            e.printStackTrace();
-        }
-
         ClientRunner.forUsername(readFromConfigFile("tdl_username"))
-                .withServerHostname("run.befaster.io")
+                .withServerHostname("localhost")
+                .withJourneyId(readFromConfigFile("tdl_journey_id"))
                 .withActionIfNoArgs(RunnerAction.testConnectivity)
                 .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
                 .withSolutionFor("hello", p -> Hello.hello(p[0]))

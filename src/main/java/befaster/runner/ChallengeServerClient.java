@@ -17,33 +17,28 @@ public class ChallengeServerClient {
     private String url;
     private String base64JourneyId;
     private int port = 8222;
-    private boolean disableColours;
+    private String acceptHeader;
 
     public static final String DONE_ENDPOINT = "done";
     public static final String CONTINUE_ENDPOINT = "continue";
     public static final String PAUSE_ENDPOINT = "pause";
     public static final String START_ENDPOINT = "start";
-    public static final String AVAILABLE_ACTIONS_ENDPOINT = "availableActions";
-    public static final String JOURNEY_PROGRESS_ENDPOINT = "journeyProgress";
-    public static final String TRANSPORT_TYPE_ENDPOINT = "transport";
-    public static final String UTF_8 = "UTF-8";
-    public static final String COLOURED_TEXT_HEADER = "text/coloured";
-    public static final String NOT_COLOURED_TEXT_HEADER = "text/not-coloured";
-    public static final String ACCEPT_HEADER = "accept";
-    public static final String CHARSET_HEADER = "charset";
+    private static final String UTF_8 = "UTF-8";
+    static final String JOURNEY_PROGRESS_ENDPOINT = "journeyProgress";
+    static final String AVAILABLE_ACTIONS = "availableActions";
 
 
-    public ChallengeServerClient(String url, String base64JourneyId, boolean disableColours) {
+    ChallengeServerClient(String url, String base64JourneyId, boolean disableColours) {
         this.url = url;
         this.base64JourneyId = base64JourneyId;
-        this.disableColours = disableColours;
+        this.acceptHeader = disableColours ? "text/not-coloured" : "text/coloured";
     }
 
     public String sendAction(String name) throws IOException, UnirestException, ClientErrorException, ServerErrorException, OtherServerException {
         String encodedPath = URLEncoder.encode(this.base64JourneyId, "UTF8");
         String url = "http://" + this.url + ":" + port + "/action/" + name + "/" + encodedPath;
         HttpResponse<String> actionResponse =  Unirest.post(url)
-                .header("accept", getColouredPlainTextHeader())
+                .header("accept", this.acceptHeader)
                 .header("charset", "UTF8")
                 .asString();
         LOG.debug("post request for action \"" + name + "\" was sent, response status is: "
@@ -63,33 +58,17 @@ public class ChallengeServerClient {
         return response;
     }
 
-    private String getColouredPlainTextHeader() {
-        return disableColours ? NOT_COLOURED_TEXT_HEADER: COLOURED_TEXT_HEADER;
-    }
-
-    public String getAvailableActions() throws IOException, UnirestException {
-        return sendGetRequestToEndpointWithString(AVAILABLE_ACTIONS_ENDPOINT);
-    }
-
-    public String getJourneyProgress() throws IOException, UnirestException {
-        return sendGetRequestToEndpointWithString(JOURNEY_PROGRESS_ENDPOINT);
-    }
-
-    public String getTransportType() throws UnsupportedEncodingException, UnirestException {
-        return sendGetRequestToEndpointWithString(TRANSPORT_TYPE_ENDPOINT);
-    }
-
-    private String sendGetRequestToEndpointWithString(String name) throws UnsupportedEncodingException, UnirestException {
+    String get(String name) throws UnsupportedEncodingException, UnirestException {
         String encodedPath = URLEncoder.encode(this.base64JourneyId, UTF_8);
-        String url = "http://" + this.url + ":" + port + "/" + name + "/" + encodedPath;
+        String url = String.format("http://%s:%d/%s/%s", this.url, port, name, encodedPath);
         return getStringResponse(url);
     }
 
     private String getStringResponse(String url) throws UnirestException {
         LOG.debug("Sending GET request to url " + url);
         HttpResponse<String> response = Unirest.get(url)
-                .header(ACCEPT_HEADER, getColouredPlainTextHeader())
-                .header(CHARSET_HEADER, UTF_8)
+                .header("accept", this.acceptHeader)
+                .header("charset", UTF_8)
                 .asString();
         String responseString = response.getBody();
         LOG.debug("Response Status = " + response.getStatus());
