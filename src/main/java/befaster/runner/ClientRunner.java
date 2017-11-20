@@ -11,10 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static tdl.client.actions.ClientActions.publish;
@@ -25,6 +22,7 @@ public class ClientRunner {
     private RunnerAction defaultRunnerAction;
     private final String username;
     private final Map<String, UserImplementation> solutions;
+    private final List<String> serverActions = Arrays.asList("start", "pause", "continue", "done", "journeyProgress", "availableActions");
 
     public static ClientRunner forUsername(@SuppressWarnings("SameParameterValue") String username) {
         return new ClientRunner(username);
@@ -60,13 +58,12 @@ public class ClientRunner {
         if (useExperimentalFeature()) {
             readActionFromCommandLine();
         } else {
-            RunnerAction runnerAction = readActionFromArgs(args);
-            RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
+            readRunnerActionFromArgs(args);
         }
 
     }
 
-    private RunnerAction readActionFromArgs(String[] args) {
+    private void readRunnerActionFromArgs(String[] args) {
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
         System.out.println("Chosen action is: "+runnerAction.name());
 
@@ -87,17 +84,23 @@ public class ClientRunner {
                         .then(runnerAction.getClientAction()));
 
         client.goLiveWith(processingRules);
-        return runnerAction;
+        RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
     }
 
     private void readActionFromCommandLine() {
-        ChallengeServerClient challengeServerClient;
         try {
-            challengeServerClient = startUpAndTestChallengeServerClient();
+            ChallengeServerClient challengeServerClient = startUpAndTestChallengeServerClient();
+
             BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
             String line = buffer.readLine().trim();
-            String response = challengeServerClient.sendAction(line);
-            System.out.println(response);
+
+            //check if server or runner action.
+            if (isServerAction(line)) {
+                String response = challengeServerClient.sendAction(line);
+                System.out.println(response);
+            } else {
+                readRunnerActionFromArgs(new String[]{line});
+            }
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not encode the URL - badly formed URL?", e);
         } catch (IOException e) {
@@ -113,6 +116,10 @@ public class ClientRunner {
         } catch (ChallengeServerClient.ClientErrorException e) {
             LOG.error("The client sent something the server didn't expect.", e);
         }
+    }
+
+    private boolean isServerAction(String line) {
+        return serverActions.contains(line);
     }
 
     private ChallengeServerClient startUpAndTestChallengeServerClient() throws ConfigNotFoundException, UnsupportedEncodingException, UnirestException {
