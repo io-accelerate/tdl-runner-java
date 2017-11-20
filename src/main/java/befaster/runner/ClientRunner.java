@@ -55,11 +55,7 @@ public class ClientRunner {
         }
 
         if (useExperimentalFeature()) {
-            try {
-                startUpAndTestChallengeServerClient();
-            } catch (ConfigNotFoundException e) {
-                LOG.error("Could not start up challenge client", e);
-            }
+            startUpAndTestChallengeServerClient();
         }
 
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
@@ -86,11 +82,11 @@ public class ClientRunner {
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
     }
 
-    private void startUpAndTestChallengeServerClient() throws ConfigNotFoundException {
-        String journeyId = readFromConfigFile("tdl_journey_id");
-        ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, true);
+    private void startUpAndTestChallengeServerClient() {
 
         try {
+            String journeyId = readFromConfigFile("tdl_journey_id");
+            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, true);
             System.out.println(challengeServerClient.getJourneyProgress());
             System.out.println(challengeServerClient.getAvailableActions());
         } catch (IOException e) {
@@ -98,6 +94,9 @@ public class ClientRunner {
             LOG.error(message, e);
         } catch (UnirestException e) {
             String message = "Something went wrong with communicating with the server. Try again.";
+            LOG.error(message, e);
+        } catch (ConfigNotFoundException e) {
+            String message = "Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.";
             LOG.error(message, e);
         }
     }
