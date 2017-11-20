@@ -72,13 +72,15 @@ public class ClientRunner {
 
             //check if server or runner action.
             if (isServerAction(line)) {
+                if (line.equals("done")) {
+                    readRunnerActionFrom("deployToProduction");
+                }
+
                 String response = challengeServerClient.sendAction(line);
                 System.out.println(response);
 
                 if (line.equals("start")) {
                     readRunnerActionFrom("getNewRoundDescription");
-                } else if (line.equals("done")) {
-                    readRunnerActionFrom("deployToProduction");
                 }
             } else {
                 readRunnerActionFrom(line);
