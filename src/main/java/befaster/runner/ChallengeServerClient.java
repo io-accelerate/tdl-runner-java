@@ -36,7 +36,7 @@ public class ChallengeServerClient {
 
     public String sendAction(String name) throws IOException, UnirestException, ClientErrorException, ServerErrorException, OtherServerException {
         String encodedPath = URLEncoder.encode(this.base64JourneyId, "UTF8");
-        String url = "http://" + this.url + ":" + port + "/action/" + name + "/" + encodedPath;
+        String url = String.format("http://%s:%d/action/%s", this.url, port, encodedPath);
         HttpResponse<String> actionResponse =  Unirest.post(url)
                 .header("accept", this.acceptHeader)
                 .header("charset", "UTF8")
