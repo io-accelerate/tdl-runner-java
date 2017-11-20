@@ -63,6 +63,43 @@ public class ClientRunner {
 
     }
 
+    private void readActionFromCommandLine() {
+        try {
+            ChallengeServerClient challengeServerClient = startUpAndTestChallengeServerClient();
+
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
+            String line = buffer.readLine().trim();
+
+            //check if server or runner action.
+            if (isServerAction(line)) {
+                String response = challengeServerClient.sendAction(line);
+                System.out.println(response);
+
+                if (line.equals("start")) {
+                    readRunnerActionFromArgs(new String[]{"getNewRoundDescription"});
+                } else if (line.equals("done")) {
+                    readRunnerActionFromArgs(new String[]{"deployToProduction"});
+                }
+            } else {
+                readRunnerActionFromArgs(new String[]{line});
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOG.error("Could not encode the URL - badly formed URL?", e);
+        } catch (IOException e) {
+            LOG.error("Could not read user input.", e);
+        }  catch (UnirestException e) {
+            LOG.error("Something went wrong with communicating with the server. Try again.", e);
+        } catch (ConfigNotFoundException e) {
+            LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
+        } catch (ChallengeServerClient.ServerErrorException e) {
+            LOG.error("Server experienced an error. Try again.", e);
+        } catch (ChallengeServerClient.OtherServerException e) {
+            LOG.error("Client threw an unexpected error.", e);
+        } catch (ChallengeServerClient.ClientErrorException e) {
+            LOG.error("The client sent something the server didn't expect.", e);
+        }
+    }
+
     private void readRunnerActionFromArgs(String[] args) {
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
         System.out.println("Chosen action is: "+runnerAction.name());
@@ -85,37 +122,6 @@ public class ClientRunner {
 
         client.goLiveWith(processingRules);
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
-    }
-
-    private void readActionFromCommandLine() {
-        try {
-            ChallengeServerClient challengeServerClient = startUpAndTestChallengeServerClient();
-
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-            String line = buffer.readLine().trim();
-
-            //check if server or runner action.
-            if (isServerAction(line)) {
-                String response = challengeServerClient.sendAction(line);
-                System.out.println(response);
-            } else {
-                readRunnerActionFromArgs(new String[]{line});
-            }
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("Could not encode the URL - badly formed URL?", e);
-        } catch (IOException e) {
-            LOG.error("Could not read user input.", e);
-        }  catch (UnirestException e) {
-            LOG.error("Something went wrong with communicating with the server. Try again.", e);
-        } catch (ConfigNotFoundException e) {
-            LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
-        } catch (ChallengeServerClient.ServerErrorException e) {
-            LOG.error("Server experienced an error. Try again.", e);
-        } catch (ChallengeServerClient.OtherServerException e) {
-            LOG.error("Client threw an unexpected error.", e);
-        } catch (ChallengeServerClient.ClientErrorException e) {
-            LOG.error("The client sent something the server didn't expect.", e);
-        }
     }
 
     private boolean isServerAction(String line) {
