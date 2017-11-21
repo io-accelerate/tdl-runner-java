@@ -11,20 +11,21 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 
-public class ChallengeServerClient {
+class ChallengeServerClient {
     private final Logger LOG = LoggerFactory.getLogger(ChallengeServerClient.class);
     private String url;
     private String base64JourneyId;
     private int port = 8222;
     private String acceptHeader;
 
-    public static final String DONE_ENDPOINT = "done";
-    public static final String CONTINUE_ENDPOINT = "continue";
-    public static final String PAUSE_ENDPOINT = "pause";
-    public static final String START_ENDPOINT = "start";
+    static final String DONE_ENDPOINT = "done";
+    static final String CONTINUE_ENDPOINT = "continue";
+    static final String PAUSE_ENDPOINT = "pause";
+    static final String START_ENDPOINT = "start";
     private static final String UTF_8 = "UTF-8";
     static final String JOURNEY_PROGRESS_ENDPOINT = "journeyProgress";
     static final String AVAILABLE_ACTIONS = "availableActions";
+    static final String ROUND_DESCRIPTION = "roundDescription";
 
 
     ChallengeServerClient(String url, String base64JourneyId, boolean disableColours) {
@@ -72,6 +73,10 @@ public class ChallengeServerClient {
 
     String getAvailableActions() throws UnsupportedEncodingException, UnirestException {
         return get(AVAILABLE_ACTIONS);
+    }
+
+    String getRoundDescription() throws UnsupportedEncodingException, UnirestException {
+        return get(ROUND_DESCRIPTION);
     }
 
     private String get(String name) throws UnsupportedEncodingException, UnirestException {

@@ -1,19 +1,24 @@
 package befaster.runner;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tdl.client.Client;
 import tdl.client.ProcessingRules;
 import tdl.client.abstractions.UserImplementation;
-
+import tdl.client.serialization.JsonRpcRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+import static befaster.runner.ChallengeServerClient.DONE_ENDPOINT;
+import static befaster.runner.ChallengeServerClient.START_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
+import static befaster.runner.RoundManagement.displayAndSaveDescription;
 import static tdl.client.actions.ClientActions.publish;
 
 public class ClientRunner {
@@ -22,7 +27,6 @@ public class ClientRunner {
     private RunnerAction defaultRunnerAction;
     private final String username;
     private final Map<String, UserImplementation> solutions;
-    private final List<String> serverActions = Arrays.asList("start", "pause", "continue", "done", "journeyProgress", "availableActions");
 
     public static ClientRunner forUsername(@SuppressWarnings("SameParameterValue") String username) {
         return new ClientRunner(username);
@@ -70,21 +74,7 @@ public class ClientRunner {
             BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
             String line = buffer.readLine().trim();
 
-            //check if server or runner action.
-            if (isServerAction(line)) {
-                if (line.equals("done")) {
-                    readRunnerActionFrom("deployToProduction");
-                }
-
-                String response = challengeServerClient.sendAction(line);
-                System.out.println(response);
-
-                if (line.equals("start")) {
-                    readRunnerActionFrom("getNewRoundDescription");
-                }
-            } else {
-                readRunnerActionFrom(line);
-            }
+            readAndExecuteAction(line, challengeServerClient);
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not encode the URL - badly formed URL?", e);
         } catch (IOException e) {
@@ -102,17 +92,30 @@ public class ClientRunner {
         }
     }
 
-    private void readRunnerActionFrom(String arg) {
-        RunnerAction runnerAction = extractActionFrom(arg).orElse(defaultRunnerAction);
-        readRunnerAction(runnerAction);
+    private void readAndExecuteAction(String line, ChallengeServerClient challengeServerClient) throws IOException, UnirestException, ChallengeServerClient.ServerErrorException, ChallengeServerClient.ClientErrorException, ChallengeServerClient.OtherServerException {
+        if (line.equals(DONE_ENDPOINT)) {
+            executeRunnerAction(RunnerAction.deployToProduction);
+        }
+
+        String response = challengeServerClient.sendAction(line);
+        System.out.println(response);
+        Gson gson = new GsonBuilder()
+                .serializeNulls()
+                .create();
+
+        if (line.equals(START_ENDPOINT)) {
+            String roundDescription = challengeServerClient.getRoundDescription();
+            JsonRpcRequest jsonRpcRequest = gson.fromJson(roundDescription, JsonRpcRequest.class);
+            displayAndSaveDescription(jsonRpcRequest.getParams()[0], jsonRpcRequest.getParams()[1]);
+        }
     }
 
     private void readRunnerActionFromArgs(String[] args) {
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
-        readRunnerAction(runnerAction);
+        executeRunnerAction(runnerAction);
     }
 
-    private void readRunnerAction(RunnerAction runnerAction) {
+    private void executeRunnerAction(RunnerAction runnerAction) {
         System.out.println("Chosen action is: "+runnerAction.name());
 
         Client client = new Client.Builder()
@@ -121,9 +124,10 @@ public class ClientRunner {
                 .create();
 
         ProcessingRules processingRules = new ProcessingRules();
+        UserImplementation userImplementation1 = p -> displayAndSaveDescription(p[0], p[1]);
         processingRules
                 .on("display_description")
-                .call(p -> RoundManagement.displayAndSaveDescription(p[0], p[1]))
+                .call(userImplementation1)
                 .then(publish());
 
         solutions.forEach((methodName, userImplementation) -> processingRules
@@ -135,13 +139,10 @@ public class ClientRunner {
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
     }
 
-    private boolean isServerAction(String line) {
-        return serverActions.contains(line);
-    }
-
     private ChallengeServerClient startUpAndTestChallengeServerClient() throws ConfigNotFoundException, UnsupportedEncodingException, UnirestException {
             String journeyId = readFromConfigFile("tdl_journey_id");
-            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, true);
+            boolean disableColours = Boolean.parseBoolean(readFromConfigFile("disable_colours", "false"));
+            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, disableColours);
             System.out.println(challengeServerClient.getJourneyProgress());
             System.out.println(challengeServerClient.getAvailableActions());
             return challengeServerClient;
