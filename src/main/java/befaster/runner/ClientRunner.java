@@ -1,14 +1,12 @@
 package befaster.runner;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tdl.client.Client;
 import tdl.client.ProcessingRules;
 import tdl.client.abstractions.UserImplementation;
-import tdl.client.serialization.JsonRpcRequest;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -60,14 +58,14 @@ public class ClientRunner {
         }
 
         if (useExperimentalFeature()) {
-            readActionFromCommandLine();
+            readActionFromUserInput();
         } else {
             readRunnerActionFromArgs(args);
         }
 
     }
 
-    private void readActionFromCommandLine() {
+    private void readActionFromUserInput() {
         try {
             ChallengeServerClient challengeServerClient = startUpAndTestChallengeServerClient();
 
@@ -94,18 +92,7 @@ public class ClientRunner {
 
     private void readAndExecuteAction(String line, ChallengeServerClient challengeServerClient) throws IOException, UnirestException, ChallengeServerClient.ServerErrorException, ChallengeServerClient.ClientErrorException, ChallengeServerClient.OtherServerException {
         if (line.equals(DONE_ENDPOINT)) {
-            Client client = new Client.Builder()
-                    .setHostname(hostname)
-                    .setUniqueId(username)
-                    .create();
-
-            ProcessingRules processingRules = new ProcessingRules();
-            solutions.forEach((methodName, userImplementation) -> processingRules
-                    .on(methodName)
-                    .call(userImplementation)
-                    .then(RunnerAction.deployToProduction.getClientAction()));
-
-            client.goLiveWith(processingRules);
+            executeOldRunnerAction(RunnerAction.deployToProduction);
         }
 
         String response = challengeServerClient.sendAction(line);
@@ -118,6 +105,7 @@ public class ClientRunner {
     }
 
     private void parseDescriptionFromResponse(String responseString) {
+        // DEBT - the first line of the response is the ID for the round, the rest of the message is the description
         ArrayList<String> lines = new ArrayList(Arrays.asList(responseString.split("\n")));
         String roundId = lines.get(0);
         lines.remove(0);

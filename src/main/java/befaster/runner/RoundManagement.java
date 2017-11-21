@@ -13,7 +13,6 @@ class RoundManagement {
 
     static String displayAndSaveDescription(String label, String description) {
         System.out.println("Starting round: " + label);
-        System.out.println(description);
 
         //Save description
         Path descriptionPath = CHALLENGES_FOLDER.resolve(label + ".txt");
