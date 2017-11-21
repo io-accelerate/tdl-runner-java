@@ -94,28 +94,43 @@ public class ClientRunner {
 
     private void readAndExecuteAction(String line, ChallengeServerClient challengeServerClient) throws IOException, UnirestException, ChallengeServerClient.ServerErrorException, ChallengeServerClient.ClientErrorException, ChallengeServerClient.OtherServerException {
         if (line.equals(DONE_ENDPOINT)) {
-            executeRunnerAction(RunnerAction.deployToProduction);
+            Client client = new Client.Builder()
+                    .setHostname(hostname)
+                    .setUniqueId(username)
+                    .create();
+
+            ProcessingRules processingRules = new ProcessingRules();
+            solutions.forEach((methodName, userImplementation) -> processingRules
+                    .on(methodName)
+                    .call(userImplementation)
+                    .then(RunnerAction.deployToProduction.getClientAction()));
+
+            client.goLiveWith(processingRules);
         }
 
         String response = challengeServerClient.sendAction(line);
         System.out.println(response);
-        Gson gson = new GsonBuilder()
-                .serializeNulls()
-                .create();
 
         if (line.equals(START_ENDPOINT)) {
-            String roundDescription = challengeServerClient.getRoundDescription();
-            JsonRpcRequest jsonRpcRequest = gson.fromJson(roundDescription, JsonRpcRequest.class);
-            displayAndSaveDescription(jsonRpcRequest.getParams()[0], jsonRpcRequest.getParams()[1]);
+            String responseString = challengeServerClient.getRoundDescription();
+            parseDescriptionFromResponse(responseString);
         }
+    }
+
+    private void parseDescriptionFromResponse(String responseString) {
+        ArrayList<String> lines = new ArrayList(Arrays.asList(responseString.split("\n")));
+        String roundId = lines.get(0);
+        lines.remove(0);
+        String description = String.join("\n", lines);
+        displayAndSaveDescription(roundId, description);
     }
 
     private void readRunnerActionFromArgs(String[] args) {
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
-        executeRunnerAction(runnerAction);
+        executeOldRunnerAction(runnerAction);
     }
 
-    private void executeRunnerAction(RunnerAction runnerAction) {
+    private void executeOldRunnerAction(RunnerAction runnerAction) {
         System.out.println("Chosen action is: "+runnerAction.name());
 
         Client client = new Client.Builder()
@@ -124,10 +139,9 @@ public class ClientRunner {
                 .create();
 
         ProcessingRules processingRules = new ProcessingRules();
-        UserImplementation userImplementation1 = p -> displayAndSaveDescription(p[0], p[1]);
         processingRules
                 .on("display_description")
-                .call(userImplementation1)
+                .call(p -> displayAndSaveDescription(p[0], p[1]))
                 .then(publish());
 
         solutions.forEach((methodName, userImplementation) -> processingRules
