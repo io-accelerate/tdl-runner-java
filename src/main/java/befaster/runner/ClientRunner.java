@@ -163,10 +163,8 @@ public class ClientRunner {
 
 
     private boolean isRecordingSystemOk() {
-        boolean requireRecording = Boolean.parseBoolean(readFromConfigFile("tdl_require_rec", "true"));
-
         //noinspection SimplifiableIfStatement
-        if (requireRecording) {
+        if (RecordingSystem.isRecordingRequired()) {
             return RecordingSystem.isRunning();
         } else {
             return true;
