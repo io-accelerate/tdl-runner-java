@@ -76,7 +76,11 @@ public class ClientRunner {
         boolean continueLoop = true;
         do {
             try {
-                showProgressAndAvailableActions(challengeServerClient);
+                System.out.println(challengeServerClient.getJourneyProgress());
+                boolean hasActions = hasAvailableActionsAndPrint(challengeServerClient);
+                if (!hasActions) {
+                    break;
+                }
                 BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
                 String line = buffer.readLine().trim();
 
@@ -97,6 +101,12 @@ public class ClientRunner {
                 System.out.println(e.getResponseMessage());
             }
         } while (continueLoop);
+    }
+
+    private boolean hasAvailableActionsAndPrint(ChallengeServerClient challengeServerClient) throws UnsupportedEncodingException, UnirestException {
+        String availableActions = challengeServerClient.getAvailableActions();
+        System.out.println(availableActions);
+        return !availableActions.contains("No actions available.");
     }
 
     private void readAndExecuteAction(String line, ChallengeServerClient challengeServerClient) throws IOException, UnirestException, ChallengeServerClient.ServerErrorException, ChallengeServerClient.ClientErrorException, ChallengeServerClient.OtherServerException {
@@ -154,11 +164,6 @@ public class ClientRunner {
         String journeyId = readFromConfigFile("tdl_journey_id");
         boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
         return new ChallengeServerClient(hostname, journeyId, useColours);
-    }
-
-    private void showProgressAndAvailableActions(ChallengeServerClient challengeServerClient) throws UnsupportedEncodingException, UnirestException {
-        System.out.println(challengeServerClient.getJourneyProgress());
-        System.out.println(challengeServerClient.getAvailableActions());
     }
 
     private static Optional<RunnerAction> extractActionFrom(String[] args) {
