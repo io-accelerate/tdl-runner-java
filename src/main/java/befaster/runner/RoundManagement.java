@@ -12,8 +12,6 @@ class RoundManagement {
     private static final Path LAST_FETCHED_ROUND_PATH = CHALLENGES_FOLDER.resolve("XR.txt");
 
     static String displayAndSaveDescription(String label, String description) {
-        System.out.println("Starting round: " + label);
-
         //Save description
         Path descriptionPath = CHALLENGES_FOLDER.resolve(label + ".txt");
         try {

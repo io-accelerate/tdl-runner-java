@@ -66,28 +66,37 @@ public class ClientRunner {
     }
 
     private void readActionFromUserInput() {
+        ChallengeServerClient challengeServerClient;
         try {
-            ChallengeServerClient challengeServerClient = startUpAndTestChallengeServerClient();
-
-            BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-            String line = buffer.readLine().trim();
-
-            readAndExecuteAction(line, challengeServerClient);
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("Could not encode the URL - badly formed URL?", e);
-        } catch (IOException e) {
-            LOG.error("Could not read user input.", e);
-        }  catch (UnirestException e) {
-            LOG.error("Something went wrong with communicating with the server. Try again.", e);
+            challengeServerClient = startUpChallengeServerClient();
         } catch (ConfigNotFoundException e) {
             LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
-        } catch (ChallengeServerClient.ServerErrorException e) {
-            LOG.error("Server experienced an error. Try again.", e);
-        } catch (ChallengeServerClient.OtherServerException e) {
-            LOG.error("Client threw an unexpected error.", e);
-        } catch (ChallengeServerClient.ClientErrorException e) {
-            LOG.error("The client sent something the server didn't expect.", e);
+            return;
         }
+        boolean continueLoop = true;
+        do {
+            try {
+                showProgressAndAvailableActions(challengeServerClient);
+                BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
+                String line = buffer.readLine().trim();
+
+                readAndExecuteAction(line, challengeServerClient);
+                continueLoop = false;
+            } catch (UnsupportedEncodingException e) {
+                LOG.error("Could not encode the URL - badly formed URL?", e);
+            } catch (IOException e) {
+                LOG.error("Could not read user input.", e);
+            }  catch (UnirestException e) {
+                LOG.error("Something went wrong with communicating with the server. Try again.", e);
+            } catch (ChallengeServerClient.ServerErrorException e) {
+                LOG.error("Server experienced an error. Try again.", e);
+            } catch (ChallengeServerClient.OtherServerException e) {
+                LOG.error("Client threw an unexpected error.", e);
+            } catch (ChallengeServerClient.ClientErrorException e) {
+                LOG.error("The client sent something the server didn't expect.", e);
+                System.out.println(e.getResponseMessage());
+            }
+        } while (continueLoop);
     }
 
     private void readAndExecuteAction(String line, ChallengeServerClient challengeServerClient) throws IOException, UnirestException, ChallengeServerClient.ServerErrorException, ChallengeServerClient.ClientErrorException, ChallengeServerClient.OtherServerException {
@@ -105,7 +114,7 @@ public class ClientRunner {
     }
 
     private void parseDescriptionFromResponse(String responseString) {
-        // DEBT - the first line of the response is the ID for the round, the rest of the message is the description
+        // DEBT - the first line of the response is the ID for the round, the rest of the responseMessage is the description
         int newlineIndex = responseString.indexOf('\n');
         if (newlineIndex > 0) {
             String roundId = responseString.substring(0, newlineIndex);
@@ -141,13 +150,15 @@ public class ClientRunner {
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
     }
 
-    private ChallengeServerClient startUpAndTestChallengeServerClient() throws ConfigNotFoundException, UnsupportedEncodingException, UnirestException {
-            String journeyId = readFromConfigFile("tdl_journey_id");
-            boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
-            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, useColours);
-            System.out.println(challengeServerClient.getJourneyProgress());
-            System.out.println(challengeServerClient.getAvailableActions());
-            return challengeServerClient;
+    private ChallengeServerClient startUpChallengeServerClient() throws ConfigNotFoundException {
+        String journeyId = readFromConfigFile("tdl_journey_id");
+        boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
+        return new ChallengeServerClient(hostname, journeyId, useColours);
+    }
+
+    private void showProgressAndAvailableActions(ChallengeServerClient challengeServerClient) throws UnsupportedEncodingException, UnirestException {
+        System.out.println(challengeServerClient.getJourneyProgress());
+        System.out.println(challengeServerClient.getAvailableActions());
     }
 
     private static Optional<RunnerAction> extractActionFrom(String[] args) {

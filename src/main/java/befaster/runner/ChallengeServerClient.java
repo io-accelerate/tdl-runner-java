@@ -45,8 +45,9 @@ class ChallengeServerClient {
                 +actionResponse.getStatus()+" - " + actionResponse.getStatusText());
 
         int responseInt = actionResponse.getStatus();
+
         if (isClientError(responseInt)) {
-            throw new ClientErrorException();
+            throw new ClientErrorException(actionResponse.getBody());
         } else if (isServerError(responseInt)) {
             throw new ServerErrorException();
         } else if (isOtherErrorResponse(responseInt)) {
@@ -104,5 +105,14 @@ class ChallengeServerClient {
     }
 
     class ClientErrorException extends Exception {
+        String responseMessage;
+
+        ClientErrorException(String message) {
+            this.responseMessage = message;
+        }
+
+        public String getResponseMessage() {
+            return responseMessage;
+        }
     }
 }
