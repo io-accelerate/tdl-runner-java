@@ -98,7 +98,7 @@ public class ClientRunner {
         String response = challengeServerClient.sendAction(line);
         System.out.println(response);
 
-        if (line.equals(START_ENDPOINT)) {
+        if (line.equals(START_ENDPOINT) || line.equals(DONE_ENDPOINT)) {
             String responseString = challengeServerClient.getRoundDescription();
             parseDescriptionFromResponse(responseString);
         }
@@ -106,11 +106,11 @@ public class ClientRunner {
 
     private void parseDescriptionFromResponse(String responseString) {
         // DEBT - the first line of the response is the ID for the round, the rest of the message is the description
-        ArrayList<String> lines = new ArrayList(Arrays.asList(responseString.split("\n")));
-        String roundId = lines.get(0);
-        lines.remove(0);
-        String description = String.join("\n", lines);
-        displayAndSaveDescription(roundId, description);
+        int newlineIndex = responseString.indexOf('\n');
+        if (newlineIndex > 0) {
+            String roundId = responseString.substring(0, newlineIndex);
+            displayAndSaveDescription(roundId, responseString);
+        }
     }
 
     private void readRunnerActionFromArgs(String[] args) {
@@ -143,8 +143,8 @@ public class ClientRunner {
 
     private ChallengeServerClient startUpAndTestChallengeServerClient() throws ConfigNotFoundException, UnsupportedEncodingException, UnirestException {
             String journeyId = readFromConfigFile("tdl_journey_id");
-            boolean disableColours = Boolean.parseBoolean(readFromConfigFile("disable_colours", "false"));
-            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, disableColours);
+            boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
+            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, useColours);
             System.out.println(challengeServerClient.getJourneyProgress());
             System.out.println(challengeServerClient.getAvailableActions());
             return challengeServerClient;

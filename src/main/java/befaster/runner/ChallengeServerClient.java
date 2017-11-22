@@ -28,10 +28,10 @@ class ChallengeServerClient {
     static final String ROUND_DESCRIPTION = "roundDescription";
 
 
-    ChallengeServerClient(String url, String base64JourneyId, boolean disableColours) {
+    ChallengeServerClient(String url, String base64JourneyId, boolean useColours) {
         this.url = url;
         this.base64JourneyId = base64JourneyId;
-        this.acceptHeader = disableColours ? "text/not-coloured" : "text/coloured";
+        this.acceptHeader = useColours ? "text/coloured" : "text/not-coloured";
     }
 
     String sendAction(String name) throws IOException, UnirestException, ClientErrorException, ServerErrorException, OtherServerException {
@@ -52,7 +52,7 @@ class ChallengeServerClient {
         } else if (isOtherErrorResponse(responseInt)) {
             throw new OtherServerException();
         }
-        return actionResponse.getBody().trim();
+        return actionResponse.getBody();
     }
 
     private boolean isOtherErrorResponse(int responseInt) {
