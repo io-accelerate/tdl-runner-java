@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
+import static befaster.runner.ChallengeServerClient.CONTINUE_ENDPOINT;
 import static befaster.runner.ChallengeServerClient.DONE_ENDPOINT;
 import static befaster.runner.ChallengeServerClient.START_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
@@ -117,7 +118,7 @@ public class ClientRunner {
         String response = challengeServerClient.sendAction(line);
         System.out.println(response);
 
-        if (line.equals(START_ENDPOINT) || line.equals(DONE_ENDPOINT)) {
+        if (line.equals(START_ENDPOINT) || line.equals(DONE_ENDPOINT) || line.equals(CONTINUE_ENDPOINT)) {
             String responseString = challengeServerClient.getRoundDescription();
             parseDescriptionFromResponse(responseString);
         }
