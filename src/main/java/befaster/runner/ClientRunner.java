@@ -11,13 +11,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-import static befaster.runner.ChallengeServerClient.CONTINUE_ENDPOINT;
 import static befaster.runner.ChallengeServerClient.DONE_ENDPOINT;
-import static befaster.runner.ChallengeServerClient.START_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
-import static befaster.runner.RoundManagement.displayAndSaveDescription;
+import static befaster.runner.RoundManagement.saveDescription;
 import static tdl.client.actions.ClientActions.publish;
 
 public class ClientRunner {
@@ -53,7 +54,7 @@ public class ClientRunner {
 
 
     public void start(String[] args) {
-        if(!isRecordingSystemOk()) {
+        if (!isRecordingSystemOk()) {
             System.out.println("Please run `record_screen_and_upload` before continuing.");
             return;
         }
@@ -74,72 +75,70 @@ public class ClientRunner {
             LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
             return;
         }
+
+        int displayedStateStamp = 0;
+        int currentStateStamp = 1;
+
         boolean continueLoop = true;
         do {
             try {
-                System.out.println(challengeServerClient.getJourneyProgress());
-                boolean hasActions = hasAvailableActionsAndPrint(challengeServerClient);
-                if (!hasActions) {
+                if (currentStateStamp > displayedStateStamp) {
+                    String journeyProgress = challengeServerClient.getJourneyProgress();
+                    System.out.println(journeyProgress);
+                    displayedStateStamp = currentStateStamp;
+                }
+
+                String availableActions = challengeServerClient.getAvailableActions();
+                System.out.println(availableActions);
+
+                if (availableActions.contains("No actions available.")) {
+                    LOG.debug("No available challenges from server");
                     break;
                 }
-                BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-                String line = buffer.readLine().trim();
 
-                readAndExecuteAction(line, challengeServerClient);
+                String userInput = readUserInput();
+                if (userInput.equals(DONE_ENDPOINT)) {
+                    executeRunnerAction(RunnerAction.deployToProduction);
+                }
+
+                String response = challengeServerClient.sendAction(userInput);
+                System.out.println(response);
+
+                String responseString = challengeServerClient.getRoundDescription();
+                RoundManagement.saveDescription(responseString);
+                currentStateStamp++;
+
                 continueLoop = false;
             } catch (UnsupportedEncodingException e) {
                 LOG.error("Could not encode the URL - badly formed URL?", e);
             } catch (IOException e) {
                 LOG.error("Could not read user input.", e);
-            }  catch (UnirestException e) {
+            } catch (UnirestException e) {
                 LOG.error("Something went wrong with communicating with the server. Try again.", e);
             } catch (ChallengeServerClient.ServerErrorException e) {
                 LOG.error("Server experienced an error. Try again.", e);
             } catch (ChallengeServerClient.OtherServerException e) {
                 LOG.error("Client threw an unexpected error.", e);
             } catch (ChallengeServerClient.ClientErrorException e) {
-                LOG.error("The client sent something the server didn't expect.", e);
+                LOG.error("The client sent something the server didn't expect.");
                 System.out.println(e.getResponseMessage());
             }
         } while (continueLoop);
     }
 
-    private boolean hasAvailableActionsAndPrint(ChallengeServerClient challengeServerClient) throws UnsupportedEncodingException, UnirestException {
-        String availableActions = challengeServerClient.getAvailableActions();
-        System.out.println(availableActions);
-        return !availableActions.contains("No actions available.");
+    private String readUserInput() throws IOException {
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
+        return buffer.readLine().trim();
     }
 
-    private void readAndExecuteAction(String line, ChallengeServerClient challengeServerClient) throws IOException, UnirestException, ChallengeServerClient.ServerErrorException, ChallengeServerClient.ClientErrorException, ChallengeServerClient.OtherServerException {
-        if (line.equals(DONE_ENDPOINT)) {
-            executeOldRunnerAction(RunnerAction.deployToProduction);
-        }
-
-        String response = challengeServerClient.sendAction(line);
-        System.out.println(response);
-
-        if (line.equals(START_ENDPOINT) || line.equals(DONE_ENDPOINT) || line.equals(CONTINUE_ENDPOINT)) {
-            String responseString = challengeServerClient.getRoundDescription();
-            parseDescriptionFromResponse(responseString);
-        }
-    }
-
-    private void parseDescriptionFromResponse(String responseString) {
-        // DEBT - the first line of the response is the ID for the round, the rest of the responseMessage is the description
-        int newlineIndex = responseString.indexOf('\n');
-        if (newlineIndex > 0) {
-            String roundId = responseString.substring(0, newlineIndex);
-            displayAndSaveDescription(roundId, responseString);
-        }
-    }
 
     private void readRunnerActionFromArgs(String[] args) {
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
-        executeOldRunnerAction(runnerAction);
+        executeRunnerAction(runnerAction);
     }
 
-    private void executeOldRunnerAction(RunnerAction runnerAction) {
-        System.out.println("Chosen action is: "+runnerAction.name());
+    private void executeRunnerAction(RunnerAction runnerAction) {
+        System.out.println("Chosen action is: " + runnerAction.name());
 
         Client client = new Client.Builder()
                 .setHostname(hostname)
@@ -149,13 +148,13 @@ public class ClientRunner {
         ProcessingRules processingRules = new ProcessingRules();
         processingRules
                 .on("display_description")
-                .call(p -> displayAndSaveDescription(p[0], p[1]))
+                .call(p -> saveDescription(p[0], p[1]))
                 .then(publish());
 
         solutions.forEach((methodName, userImplementation) -> processingRules
-                        .on(methodName)
-                        .call(userImplementation)
-                        .then(runnerAction.getClientAction()));
+                .on(methodName)
+                .call(userImplementation)
+                .then(runnerAction.getClientAction()));
 
         client.goLiveWith(processingRules);
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
