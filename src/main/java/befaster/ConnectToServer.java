@@ -53,7 +53,7 @@ public class ConnectToServer {
     public static void main(String[] args) throws ConfigNotFoundException {
 
         ClientRunner.forUsername(readFromConfigFile("tdl_username"))
-                .withServerHostname("localhost")
+                .withServerHostname("run.befaster.io")
                 .withActionIfNoArgs(RunnerAction.testConnectivity)
                 .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
                 .withSolutionFor("hello", p -> Hello.hello(p[0]))
