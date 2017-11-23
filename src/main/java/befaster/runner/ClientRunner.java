@@ -54,87 +54,35 @@ public class ClientRunner {
 
 
     public void start(String[] args) {
-        if (!isRecordingSystemOk()) {
+        if (!RecordingSystem.isRecordingSystemOk()) {
             System.out.println("Please run `record_screen_and_upload` before continuing.");
             return;
         }
 
         if (useExperimentalFeature()) {
-            readActionFromUserInput();
+            executeServerActionFromUserInput();
         } else {
-            readRunnerActionFromArgs(args);
+            executeRunnerActionFromArgs(args);
         }
 
     }
 
-    private void readActionFromUserInput() {
-        ChallengeServerClient challengeServerClient;
-        try {
-            challengeServerClient = startUpChallengeServerClient();
-        } catch (ConfigNotFoundException e) {
-            LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
-            return;
-        }
+    //~~~~~~~~ Runner Actions ~~~~~~~~~
 
-        int displayedStateStamp = 0;
-        int currentStateStamp = 1;
-
-        boolean continueLoop = true;
-        do {
-            try {
-                if (currentStateStamp > displayedStateStamp) {
-                    String journeyProgress = challengeServerClient.getJourneyProgress();
-                    System.out.println(journeyProgress);
-                    displayedStateStamp = currentStateStamp;
-                }
-
-                String availableActions = challengeServerClient.getAvailableActions();
-                System.out.println(availableActions);
-
-                if (availableActions.contains("No actions available.")) {
-                    LOG.debug("No available challenges from server");
-                    break;
-                }
-
-                String userInput = readUserInput();
-                if (userInput.equals(DONE_ENDPOINT)) {
-                    executeRunnerAction(RunnerAction.deployToProduction);
-                }
-
-                String response = challengeServerClient.sendAction(userInput);
-                System.out.println(response);
-
-                String responseString = challengeServerClient.getRoundDescription();
-                RoundManagement.saveDescription(responseString);
-                currentStateStamp++;
-
-                continueLoop = false;
-            } catch (UnsupportedEncodingException e) {
-                LOG.error("Could not encode the URL - badly formed URL?", e);
-            } catch (IOException e) {
-                LOG.error("Could not read user input.", e);
-            } catch (UnirestException e) {
-                LOG.error("Something went wrong with communicating with the server. Try again.", e);
-            } catch (ChallengeServerClient.ServerErrorException e) {
-                LOG.error("Server experienced an error. Try again.", e);
-            } catch (ChallengeServerClient.OtherServerException e) {
-                LOG.error("Client threw an unexpected error.", e);
-            } catch (ChallengeServerClient.ClientErrorException e) {
-                LOG.error("The client sent something the server didn't expect.");
-                System.out.println(e.getResponseMessage());
-            }
-        } while (continueLoop);
-    }
-
-    private String readUserInput() throws IOException {
-        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-        return buffer.readLine().trim();
-    }
-
-
-    private void readRunnerActionFromArgs(String[] args) {
+    private void executeRunnerActionFromArgs(String[] args) {
         RunnerAction runnerAction = extractActionFrom(args).orElse(defaultRunnerAction);
         executeRunnerAction(runnerAction);
+    }
+
+    private static Optional<RunnerAction> extractActionFrom(String[] args) {
+        String firstArg = args.length > 0 ? args[0] : null;
+        return extractActionFrom(firstArg);
+    }
+
+    private static Optional<RunnerAction> extractActionFrom(String firstArg) {
+        return Arrays.stream(RunnerAction.values())
+                .filter(runnerAction -> runnerAction.name().equalsIgnoreCase(firstArg))
+                .findFirst();
     }
 
     private void executeRunnerAction(RunnerAction runnerAction) {
@@ -160,32 +108,68 @@ public class ClientRunner {
         RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
     }
 
+    //~~~~~~~~ Server Actions ~~~~~~~~~
+
+
+    private void executeServerActionFromUserInput() {
+        ChallengeServerClient challengeServerClient;
+        try {
+            challengeServerClient = startUpChallengeServerClient();
+        } catch (ConfigNotFoundException e) {
+            LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
+            return;
+        }
+
+        try {
+            String journeyProgress = challengeServerClient.getJourneyProgress();
+            System.out.println(journeyProgress);
+
+            String availableActions = challengeServerClient.getAvailableActions();
+            System.out.println(availableActions);
+
+            if (availableActions.contains("No actions available.")) {
+                LOG.debug("No available challenges from server");
+                return;
+            }
+
+            String userInput = readUserInput();
+            if (userInput.equals(DONE_ENDPOINT)) {
+                executeRunnerAction(RunnerAction.deployToProduction);
+            }
+
+            String response = challengeServerClient.sendAction(userInput);
+            System.out.println(response);
+
+            String responseString = challengeServerClient.getRoundDescription();
+            RoundManagement.saveDescription(responseString);
+
+        } catch (UnsupportedEncodingException e) {
+            LOG.error("Could not encode the URL - badly formed URL?", e);
+        } catch (IOException e) {
+            LOG.error("Could not read user input.", e);
+        } catch (UnirestException e) {
+            LOG.error("Something went wrong with communicating with the server. Try again.", e);
+        } catch (ChallengeServerClient.ServerErrorException e) {
+            LOG.error("Server experienced an error. Try again.", e);
+        } catch (ChallengeServerClient.OtherServerException e) {
+            LOG.error("Client threw an unexpected error.", e);
+        } catch (ChallengeServerClient.ClientErrorException e) {
+            LOG.error("The client sent something the server didn't expect.");
+            System.out.println(e.getResponseMessage());
+        }
+    }
+
+    private String readUserInput() throws IOException {
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
+        return buffer.readLine().trim();
+    }
+
     private ChallengeServerClient startUpChallengeServerClient() throws ConfigNotFoundException {
         String journeyId = readFromConfigFile("tdl_journey_id");
         boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
         return new ChallengeServerClient(hostname, journeyId, useColours);
     }
 
-    private static Optional<RunnerAction> extractActionFrom(String[] args) {
-        String firstArg = args.length > 0 ? args[0] : null;
-        return extractActionFrom(firstArg);
-    }
-
-    private static Optional<RunnerAction> extractActionFrom(String firstArg) {
-        return Arrays.stream(RunnerAction.values())
-                .filter(runnerAction -> runnerAction.name().equalsIgnoreCase(firstArg))
-                .findFirst();
-    }
-
-
-    private boolean isRecordingSystemOk() {
-        //noinspection SimplifiableIfStatement
-        if (RecordingSystem.isRecordingRequired()) {
-            return RecordingSystem.isRunning();
-        } else {
-            return true;
-        }
-    }
 
     private boolean useExperimentalFeature() {
         return Boolean.parseBoolean(readFromConfigFile("tdl_enable_experimental", "false"));

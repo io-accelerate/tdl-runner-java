@@ -19,9 +19,6 @@ class ChallengeServerClient {
     private String acceptHeader;
 
     static final String DONE_ENDPOINT = "done";
-    static final String CONTINUE_ENDPOINT = "continue";
-    static final String PAUSE_ENDPOINT = "pause";
-    static final String START_ENDPOINT = "start";
     private static final String UTF_8 = "UTF-8";
     private static final String JOURNEY_PROGRESS_ENDPOINT = "journeyProgress";
     private static final String AVAILABLE_ACTIONS = "availableActions";

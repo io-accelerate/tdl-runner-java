@@ -9,7 +9,12 @@ import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 class RecordingSystem {
     private static final String RECORDING_SYSTEM_ENDPOINT = "http://localhost:41375";
 
-    static boolean isRunning() {
+    static boolean isRecordingSystemOk() {
+        //noinspection SimplifiableConditionalExpression
+        return RecordingSystem.isRecordingRequired() ? RecordingSystem.isRunning() : true;
+    }
+
+    private static boolean isRunning() {
         try {
             HttpResponse<String> stringHttpResponse = Unirest.get(RECORDING_SYSTEM_ENDPOINT + "/status").asString();
             if (stringHttpResponse.getStatus() == 200 && stringHttpResponse.getBody().startsWith("OK")) {
@@ -22,7 +27,7 @@ class RecordingSystem {
         return false;
     }
 
-    static boolean isRecordingRequired() {
+    private static boolean isRecordingRequired() {
         return Boolean.parseBoolean(readFromConfigFile("tdl_require_rec", "true"));
     }
 
