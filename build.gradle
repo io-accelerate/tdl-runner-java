@@ -32,7 +32,7 @@ dependencies {
 
 apply plugin: 'application'
 
-mainClassName = 'befaster.ConnectToServer'
+mainClassName = 'befaster.SendCommandToServer'
 
 run {
     standardInput = System.in

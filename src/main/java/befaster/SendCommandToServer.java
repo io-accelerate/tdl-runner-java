@@ -11,7 +11,7 @@ import befaster.solutions.Sum;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.TypeConversion.asInt;
 
-public class ConnectToServer {
+public class SendCommandToServer {
     /**
      * ~~~~~~~~~~ Running the system: ~~~~~~~~~~~~~
      *
