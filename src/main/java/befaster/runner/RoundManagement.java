@@ -11,10 +11,17 @@ class RoundManagement {
     private static final Path CHALLENGES_FOLDER = Paths.get("challenges");
     private static final Path LAST_FETCHED_ROUND_PATH = CHALLENGES_FOLDER.resolve("XR.txt");
 
-    static String displayAndSaveDescription(String label, String description) {
-        System.out.println("Starting round: " + label);
-        System.out.println(description);
+    static String saveDescription(String rawDescription) {
+        // DEBT - the first line of the response is the ID for the round, the rest of the responseMessage is the description
+        int newlineIndex = rawDescription.indexOf('\n');
+        if (newlineIndex > 0) {
+            String roundId = rawDescription.substring(0, newlineIndex);
+            return saveDescription(roundId, rawDescription);
+        }
+        return "OK";
+    }
 
+    static String saveDescription(String label, String description) {
         //Save description
         Path descriptionPath = CHALLENGES_FOLDER.resolve(label + ".txt");
         try {

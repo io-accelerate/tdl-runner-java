@@ -11,31 +11,29 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 
-public class ChallengeServerClient {
+class ChallengeServerClient {
     private final Logger LOG = LoggerFactory.getLogger(ChallengeServerClient.class);
     private String url;
     private String base64JourneyId;
     private int port = 8222;
     private String acceptHeader;
 
-    public static final String DONE_ENDPOINT = "done";
-    public static final String CONTINUE_ENDPOINT = "continue";
-    public static final String PAUSE_ENDPOINT = "pause";
-    public static final String START_ENDPOINT = "start";
+    static final String DEPLOY_ENDPOINT = "deploy";
     private static final String UTF_8 = "UTF-8";
-    static final String JOURNEY_PROGRESS_ENDPOINT = "journeyProgress";
-    static final String AVAILABLE_ACTIONS = "availableActions";
+    private static final String JOURNEY_PROGRESS_ENDPOINT = "journeyProgress";
+    private static final String AVAILABLE_ACTIONS = "availableActions";
+    private static final String ROUND_DESCRIPTION = "roundDescription";
 
 
-    ChallengeServerClient(String url, String base64JourneyId, boolean disableColours) {
+    ChallengeServerClient(String url, String base64JourneyId, boolean useColours) {
         this.url = url;
         this.base64JourneyId = base64JourneyId;
-        this.acceptHeader = disableColours ? "text/not-coloured" : "text/coloured";
+        this.acceptHeader = useColours ? "text/coloured" : "text/not-coloured";
     }
 
-    public String sendAction(String name) throws IOException, UnirestException, ClientErrorException, ServerErrorException, OtherServerException {
+    String sendAction(String name) throws IOException, UnirestException, ClientErrorException, ServerErrorException, OtherServerException {
         String encodedPath = URLEncoder.encode(this.base64JourneyId, "UTF8");
-        String url = String.format("http://%s:%d/action/%s", this.url, port, encodedPath);
+        String url = String.format("http://%s:%d/action/%s/%s", this.url, port, name, encodedPath);
         HttpResponse<String> actionResponse =  Unirest.post(url)
                 .header("accept", this.acceptHeader)
                 .header("charset", "UTF8")
@@ -44,14 +42,15 @@ public class ChallengeServerClient {
                 +actionResponse.getStatus()+" - " + actionResponse.getStatusText());
 
         int responseInt = actionResponse.getStatus();
+
         if (isClientError(responseInt)) {
-            throw new ClientErrorException();
+            throw new ClientErrorException(actionResponse.getBody());
         } else if (isServerError(responseInt)) {
             throw new ServerErrorException();
         } else if (isOtherErrorResponse(responseInt)) {
             throw new OtherServerException();
         }
-        return actionResponse.getBody().trim();
+        return actionResponse.getBody();
     }
 
     private boolean isOtherErrorResponse(int responseInt) {
@@ -74,7 +73,11 @@ public class ChallengeServerClient {
         return get(AVAILABLE_ACTIONS);
     }
 
-    String get(String name) throws UnsupportedEncodingException, UnirestException {
+    String getRoundDescription() throws UnsupportedEncodingException, UnirestException {
+        return get(ROUND_DESCRIPTION);
+    }
+
+    private String get(String name) throws UnsupportedEncodingException, UnirestException {
         String encodedPath = URLEncoder.encode(this.base64JourneyId, UTF_8);
         String url = String.format("http://%s:%d/%s/%s", this.url, port, name, encodedPath);
         return getStringResponse(url);
@@ -89,7 +92,7 @@ public class ChallengeServerClient {
         String responseString = response.getBody();
         LOG.debug("Response Status = " + response.getStatus());
         LOG.debug("Receives response: " + responseString);
-        return responseString.trim();
+        return responseString;
     }
 
     class ServerErrorException extends Exception {
@@ -99,5 +102,14 @@ public class ChallengeServerClient {
     }
 
     class ClientErrorException extends Exception {
+        String responseMessage;
+
+        ClientErrorException(String message) {
+            this.responseMessage = message;
+        }
+
+        String getResponseMessage() {
+            return responseMessage;
+        }
     }
 }
