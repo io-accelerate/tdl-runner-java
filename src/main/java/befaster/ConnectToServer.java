@@ -11,7 +11,7 @@ import befaster.solutions.Sum;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.TypeConversion.asInt;
 
-public class Start {
+public class ConnectToServer {
     /**
      * ~~~~~~~~~~ Running the system: ~~~~~~~~~~~~~
      *
@@ -44,7 +44,7 @@ public class Start {
      *   |      |   ./src/main/java/befaster/solutions    |                                               |
      *   |  5.  | Run "testConnectivity", observe output  |                                               |
      *   |  6.  | If ready, run "deployToProduction"      |                                               |
-     *   |  7.  |                                         | Type "done"                                   |
+     *   |  7.  |                                         | Type "deploy"                                 |
      *   |  8.  |                                         | Check failed requests                         |
      *   |  9.  |                                         | Go to step 2.                                 |
      *   +------+-----------------------------------------+-----------------------------------------------+
@@ -53,7 +53,7 @@ public class Start {
     public static void main(String[] args) throws ConfigNotFoundException {
 
         ClientRunner.forUsername(readFromConfigFile("tdl_username"))
-                .withServerHostname("run.befaster.io")
+                .withServerHostname("localhost")
                 .withActionIfNoArgs(RunnerAction.testConnectivity)
                 .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
                 .withSolutionFor("hello", p -> Hello.hello(p[0]))

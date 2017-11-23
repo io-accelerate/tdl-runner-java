@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static befaster.runner.ChallengeServerClient.DONE_ENDPOINT;
+import static befaster.runner.ChallengeServerClient.DEPLOY_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.RoundManagement.saveDescription;
 import static tdl.client.actions.ClientActions.publish;
@@ -133,7 +133,7 @@ public class ClientRunner {
             }
 
             String userInput = readUserInput();
-            if (userInput.equals(DONE_ENDPOINT)) {
+            if (userInput.equals(DEPLOY_ENDPOINT)) {
                 executeRunnerAction(RunnerAction.deployToProduction);
             }
 

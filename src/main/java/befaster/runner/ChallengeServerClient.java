@@ -18,7 +18,7 @@ class ChallengeServerClient {
     private int port = 8222;
     private String acceptHeader;
 
-    static final String DONE_ENDPOINT = "done";
+    static final String DEPLOY_ENDPOINT = "deploy";
     private static final String UTF_8 = "UTF-8";
     private static final String JOURNEY_PROGRESS_ENDPOINT = "journeyProgress";
     private static final String AVAILABLE_ACTIONS = "availableActions";
