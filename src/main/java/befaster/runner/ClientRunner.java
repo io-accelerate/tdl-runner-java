@@ -59,6 +59,8 @@ public class ClientRunner {
             System.out.println("Please run `record_screen_and_upload` before continuing.");
             return;
         }
+        
+        System.out.println("Connecting to " + hostname);
 
         if (useExperimentalFeature()) {
             executeServerActionFromUserInput(args);
