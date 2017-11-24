@@ -59,7 +59,6 @@ public class ClientRunner {
             System.out.println("Please run `record_screen_and_upload` before continuing.");
             return;
         }
-        
         System.out.println("Connecting to " + hostname);
 
         if (useExperimentalFeature()) {
@@ -138,9 +137,9 @@ public class ClientRunner {
             String userInput = getUserInput(args);
 
             if (userInput.equals(DEPLOY_ENDPOINT)) {
+                // DEBT - the RecordingSystem.notifyEvent happens in executeRunnerAction, but once we migrate form the legacy system, we should move it outside for clarity
                 RunnerAction runnerAction = RunnerAction.deployToProduction;
                 executeRunnerAction(runnerAction);
-                RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
             }
 
             String response = challengeServerClient.sendAction(userInput);
