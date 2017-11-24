@@ -19,7 +19,7 @@ class RoundManagement {
             String roundId = rawDescription.substring(0, newlineIndex);
             String lastFetchedRound = getLastFetchedRound();
             if (!roundId.equals(lastFetchedRound)) {
-                callback.accept(lastFetchedRound);
+                callback.accept(roundId);
             }
             return saveDescription(roundId, rawDescription);
         }
