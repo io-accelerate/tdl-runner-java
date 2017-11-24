@@ -19,6 +19,7 @@ import java.util.Optional;
 import static befaster.runner.ChallengeServerClient.DEPLOY_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.RoundManagement.saveDescription;
+import static befaster.runner.RunnerAction.getNewRoundDescription;
 import static tdl.client.actions.ClientActions.publish;
 
 public class ClientRunner {
@@ -135,14 +136,19 @@ public class ClientRunner {
             String userInput = getUserInput(args);
 
             if (userInput.equals(DEPLOY_ENDPOINT)) {
-                executeRunnerAction(RunnerAction.deployToProduction);
+                RunnerAction runnerAction = RunnerAction.deployToProduction;
+                executeRunnerAction(runnerAction);
+                RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), runnerAction.getShortName());
             }
 
             String response = challengeServerClient.sendAction(userInput);
             System.out.println(response);
 
             String responseString = challengeServerClient.getRoundDescription();
-            RoundManagement.saveDescription(responseString);
+            RoundManagement.saveDescription(
+                    responseString,
+                    lastFetchedRound -> RecordingSystem.notifyEvent(lastFetchedRound, getNewRoundDescription.getShortName())
+            );
 
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not encode the URL - badly formed URL?", e);

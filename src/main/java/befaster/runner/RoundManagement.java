@@ -6,16 +6,21 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 
 class RoundManagement {
     private static final Path CHALLENGES_FOLDER = Paths.get("challenges");
     private static final Path LAST_FETCHED_ROUND_PATH = CHALLENGES_FOLDER.resolve("XR.txt");
 
-    static String saveDescription(String rawDescription) {
+    static String saveDescription(String rawDescription, Consumer<String> callback) {
         // DEBT - the first line of the response is the ID for the round, the rest of the responseMessage is the description
         int newlineIndex = rawDescription.indexOf('\n');
         if (newlineIndex > 0) {
             String roundId = rawDescription.substring(0, newlineIndex);
+            String lastFetchedRound = getLastFetchedRound();
+            if (!roundId.equals(lastFetchedRound)) {
+                callback.accept(lastFetchedRound);
+            }
             return saveDescription(roundId, rawDescription);
         }
         return "OK";
