@@ -60,7 +60,7 @@ public class ClientRunner {
         }
 
         if (useExperimentalFeature()) {
-            executeServerActionFromUserInput();
+            executeServerActionFromUserInput(args);
         } else {
             executeRunnerActionFromArgs(args);
         }
@@ -111,7 +111,7 @@ public class ClientRunner {
     //~~~~~~~~ Server Actions ~~~~~~~~~
 
 
-    private void executeServerActionFromUserInput() {
+    private void executeServerActionFromUserInput(String[] args) {
         ChallengeServerClient challengeServerClient;
         try {
             challengeServerClient = startUpChallengeServerClient();
@@ -132,7 +132,8 @@ public class ClientRunner {
                 return;
             }
 
-            String userInput = readUserInput();
+            String userInput = getUserInput(args);
+
             if (userInput.equals(DEPLOY_ENDPOINT)) {
                 executeRunnerAction(RunnerAction.deployToProduction);
             }
@@ -157,6 +158,21 @@ public class ClientRunner {
             LOG.error("The client sent something the server didn't expect.");
             System.out.println(e.getResponseMessage());
         }
+    }
+
+    private String getUserInput(String[] args) throws IOException {
+        Optional<String> gradleInput = readFromGradleArgs(args);
+        String userInput;
+        if (gradleInput.isPresent()) {
+            userInput = gradleInput.get();
+        } else {
+            userInput = readUserInput();
+        }
+        return userInput;
+    }
+
+    private static Optional<String> readFromGradleArgs(String[] args) {
+        return args.length > 0 ? Optional.of(args[0]) : Optional.empty();
     }
 
     private String readUserInput() throws IOException {
