@@ -19,6 +19,7 @@ import java.util.Optional;
 import static befaster.runner.ChallengeServerClient.DEPLOY_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.RoundManagement.saveDescription;
+import static befaster.runner.RunnerAction.getNewRoundDescription;
 import static tdl.client.actions.ClientActions.publish;
 
 public class ClientRunner {
@@ -58,9 +59,10 @@ public class ClientRunner {
             System.out.println("Please run `record_screen_and_upload` before continuing.");
             return;
         }
+        System.out.println("Connecting to " + hostname);
 
         if (useExperimentalFeature()) {
-            executeServerActionFromUserInput();
+            executeServerActionFromUserInput(args);
         } else {
             executeRunnerActionFromArgs(args);
         }
@@ -111,7 +113,7 @@ public class ClientRunner {
     //~~~~~~~~ Server Actions ~~~~~~~~~
 
 
-    private void executeServerActionFromUserInput() {
+    private void executeServerActionFromUserInput(String[] args) {
         ChallengeServerClient challengeServerClient;
         try {
             challengeServerClient = startUpChallengeServerClient();
@@ -132,16 +134,22 @@ public class ClientRunner {
                 return;
             }
 
-            String userInput = readUserInput();
+            String userInput = getUserInput(args);
+
             if (userInput.equals(DEPLOY_ENDPOINT)) {
-                executeRunnerAction(RunnerAction.deployToProduction);
+                // DEBT - the RecordingSystem.notifyEvent happens in executeRunnerAction, but once we migrate form the legacy system, we should move it outside for clarity
+                RunnerAction runnerAction = RunnerAction.deployToProduction;
+                executeRunnerAction(runnerAction);
             }
 
             String response = challengeServerClient.sendAction(userInput);
             System.out.println(response);
 
             String responseString = challengeServerClient.getRoundDescription();
-            RoundManagement.saveDescription(responseString);
+            RoundManagement.saveDescription(
+                    responseString,
+                    lastFetchedRound -> RecordingSystem.notifyEvent(lastFetchedRound, getNewRoundDescription.getShortName())
+            );
 
         } catch (UnsupportedEncodingException e) {
             LOG.error("Could not encode the URL - badly formed URL?", e);
@@ -157,6 +165,21 @@ public class ClientRunner {
             LOG.error("The client sent something the server didn't expect.");
             System.out.println(e.getResponseMessage());
         }
+    }
+
+    private String getUserInput(String[] args) throws IOException {
+        Optional<String> gradleInput = readFromGradleArgs(args);
+        String userInput;
+        if (gradleInput.isPresent()) {
+            userInput = gradleInput.get();
+        } else {
+            userInput = readUserInput();
+        }
+        return userInput;
+    }
+
+    private static Optional<String> readFromGradleArgs(String[] args) {
+        return args.length > 0 ? Optional.of(args[0]) : Optional.empty();
     }
 
     private String readUserInput() throws IOException {
