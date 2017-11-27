@@ -1,6 +1,5 @@
 package befaster.runner;
 
-import com.mashape.unirest.http.exceptions.UnirestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tdl.client.Client;
@@ -10,13 +9,11 @@ import tdl.client.abstractions.UserImplementation;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static befaster.runner.ChallengeServerClient.DEPLOY_ENDPOINT;
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.RoundManagement.saveDescription;
 import static befaster.runner.RunnerAction.getNewRoundDescription;
@@ -53,6 +50,7 @@ public class ClientRunner {
         return this;
     }
 
+    //~~~~~~~~ The entry point ~~~~~~~~~
 
     public void start(String[] args) {
         if (!RecordingSystem.isRecordingSystemOk()) {
@@ -66,7 +64,10 @@ public class ClientRunner {
         } else {
             executeRunnerActionFromArgs(args);
         }
+    }
 
+    private boolean useExperimentalFeature() {
+        return Boolean.parseBoolean(readFromConfigFile("tdl_enable_experimental", "false"));
     }
 
     //~~~~~~~~ Runner Actions ~~~~~~~~~
@@ -78,10 +79,6 @@ public class ClientRunner {
 
     private static Optional<RunnerAction> extractActionFrom(String[] args) {
         String firstArg = args.length > 0 ? args[0] : null;
-        return extractActionFrom(firstArg);
-    }
-
-    private static Optional<RunnerAction> extractActionFrom(String firstArg) {
         return Arrays.stream(RunnerAction.values())
                 .filter(runnerAction -> runnerAction.name().equalsIgnoreCase(firstArg))
                 .findFirst();
@@ -114,15 +111,11 @@ public class ClientRunner {
 
 
     private void executeServerActionFromUserInput(String[] args) {
-        ChallengeServerClient challengeServerClient;
         try {
-            challengeServerClient = startUpChallengeServerClient();
-        } catch (ConfigNotFoundException e) {
-            LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
-            return;
-        }
+            String journeyId = readFromConfigFile("tdl_journey_id");
+            boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
+            ChallengeServerClient challengeServerClient = new ChallengeServerClient(hostname, journeyId, useColours);
 
-        try {
             String journeyProgress = challengeServerClient.getJourneyProgress();
             System.out.println(journeyProgress);
 
@@ -130,36 +123,33 @@ public class ClientRunner {
             System.out.println(availableActions);
 
             if (availableActions.contains("No actions available.")) {
-                LOG.debug("No available challenges from server");
                 return;
             }
 
             String userInput = getUserInput(args);
 
-            if (userInput.equals(DEPLOY_ENDPOINT)) {
+            //Obs: Deploy seems to be the only "special" action, everything else is driven by the server
+            if (userInput.equals("deploy")) {
                 // DEBT - the RecordingSystem.notifyEvent happens in executeRunnerAction, but once we migrate form the legacy system, we should move it outside for clarity
                 RunnerAction runnerAction = RunnerAction.deployToProduction;
                 executeRunnerAction(runnerAction);
             }
 
-            String response = challengeServerClient.sendAction(userInput);
-            System.out.println(response);
+            String actionFeedback = challengeServerClient.sendAction(userInput);
+            System.out.println(actionFeedback);
 
             String responseString = challengeServerClient.getRoundDescription();
             RoundManagement.saveDescription(
                     responseString,
                     lastFetchedRound -> RecordingSystem.notifyEvent(lastFetchedRound, getNewRoundDescription.getShortName())
             );
-
-        } catch (UnsupportedEncodingException e) {
-            LOG.error("Could not encode the URL - badly formed URL?", e);
+        } catch (ConfigNotFoundException e) {
+            LOG.error("Cannot find tdl_journey_id, needed to communicate with the server. Add this to the credentials.config.", e);
         } catch (IOException e) {
             LOG.error("Could not read user input.", e);
-        } catch (UnirestException e) {
-            LOG.error("Something went wrong with communicating with the server. Try again.", e);
         } catch (ChallengeServerClient.ServerErrorException e) {
             LOG.error("Server experienced an error. Try again.", e);
-        } catch (ChallengeServerClient.OtherServerException e) {
+        } catch (ChallengeServerClient.OtherCommunicationException e) {
             LOG.error("Client threw an unexpected error.", e);
         } catch (ChallengeServerClient.ClientErrorException e) {
             LOG.error("The client sent something the server didn't expect.");
@@ -168,33 +158,11 @@ public class ClientRunner {
     }
 
     private String getUserInput(String[] args) throws IOException {
-        Optional<String> gradleInput = readFromGradleArgs(args);
-        String userInput;
-        if (gradleInput.isPresent()) {
-            userInput = gradleInput.get();
-        } else {
-            userInput = readUserInput();
-        }
-        return userInput;
+        return args.length > 0 ? args[0] : readInputFromConsole();
     }
 
-    private static Optional<String> readFromGradleArgs(String[] args) {
-        return args.length > 0 ? Optional.of(args[0]) : Optional.empty();
-    }
-
-    private String readUserInput() throws IOException {
+    private String readInputFromConsole() throws IOException {
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
-        return buffer.readLine().trim();
-    }
-
-    private ChallengeServerClient startUpChallengeServerClient() throws ConfigNotFoundException {
-        String journeyId = readFromConfigFile("tdl_journey_id");
-        boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
-        return new ChallengeServerClient(hostname, journeyId, useColours);
-    }
-
-
-    private boolean useExperimentalFeature() {
-        return Boolean.parseBoolean(readFromConfigFile("tdl_enable_experimental", "false"));
+        return buffer.readLine();
     }
 }

@@ -12,18 +12,17 @@ class RoundManagement {
     private static final Path CHALLENGES_FOLDER = Paths.get("challenges");
     private static final Path LAST_FETCHED_ROUND_PATH = CHALLENGES_FOLDER.resolve("XR.txt");
 
-    static String saveDescription(String rawDescription, Consumer<String> callback) {
+    static void saveDescription(String rawDescription, Consumer<String> callback) {
         // DEBT - the first line of the response is the ID for the round, the rest of the responseMessage is the description
         int newlineIndex = rawDescription.indexOf('\n');
-        if (newlineIndex > 0) {
-            String roundId = rawDescription.substring(0, newlineIndex);
-            String lastFetchedRound = getLastFetchedRound();
-            if (!roundId.equals(lastFetchedRound)) {
-                callback.accept(roundId);
-            }
-            return saveDescription(roundId, rawDescription);
+        if (newlineIndex <= 0) return;
+
+        String roundId = rawDescription.substring(0, newlineIndex);
+        String lastFetchedRound = getLastFetchedRound();
+        if (!roundId.equals(lastFetchedRound)) {
+            callback.accept(roundId);
         }
-        return "OK";
+        saveDescription(roundId, rawDescription);
     }
 
     static String saveDescription(String label, String description) {
