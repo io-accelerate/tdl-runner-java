@@ -158,7 +158,7 @@ public class ClientRunner {
     }
 
     private String getUserInput(String[] args) throws IOException {
-        return args.length > 0 && !args[0].isEmpty() ? args[0] : readInputFromConsole();
+        return args.length > 0 ? args[0] : readInputFromConsole();
     }
 
     private String readInputFromConsole() throws IOException {
