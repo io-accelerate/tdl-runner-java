@@ -37,9 +37,10 @@ mainClassName = 'befaster.SendCommandToServer'
 run {
     standardInput = System.in
 
-    def action = System.getProperty('action', '')
+    def action = System.getProperty('action')
+    def actions = (action == null) ? [] : [ action ]
     //noinspection GroovyAssignabilityCheck
-    args([ action ])
+    args(actions)
 }
 
 jar {
