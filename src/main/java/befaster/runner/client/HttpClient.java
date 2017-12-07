@@ -1,4 +1,4 @@
-package befaster.runner;
+package befaster.runner.client;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -10,14 +10,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 
-class ChallengeServerClient {
-    private final Logger LOG = LoggerFactory.getLogger(ChallengeServerClient.class);
+public class HttpClient {
+    private final Logger LOG = LoggerFactory.getLogger(HttpClient.class);
     private String url;
     private String journeyId;
     private int port = 8222;
     private String acceptHeader;
 
-    ChallengeServerClient(String url, String journeyId, boolean useColours) {
+    HttpClient(String url, String journeyId, boolean useColours) {
         this.url = url;
         this.journeyId = journeyId;
         this.acceptHeader = useColours ? "text/coloured" : "text/not-coloured";
@@ -97,27 +97,27 @@ class ChallengeServerClient {
         return responseStatus < 200 || responseStatus > 300;
     }
 
-    static class ClientErrorException extends Exception {
+    public static class ClientErrorException extends Exception {
 
         String responseMessage;
         ClientErrorException(String message) {
             this.responseMessage = message;
         }
 
-        String getResponseMessage() {
+        public String getResponseMessage() {
             return responseMessage;
         }
 
 
     }
 
-    static class ServerErrorException extends Exception {
+    public static class ServerErrorException extends Exception {
         ServerErrorException(String statusText) {
             super(statusText);
         }
     }
 
-    static class OtherCommunicationException extends Exception {
+    public static class OtherCommunicationException extends Exception {
 
         OtherCommunicationException(String message, Exception e) {
             super(message,e);

@@ -5,7 +5,6 @@ import tdl.client.actions.ClientActions;
 
 public enum RunnerAction {
     getNewRoundDescription("new",ClientActions.stop()),
-    testConnectivity("test", ClientActions.stop()),
     deployToProduction("deploy", ClientActions.publish());
 
     private String shortName;
