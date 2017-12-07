@@ -104,7 +104,7 @@ public class ClientRunner {
                 .on(methodName)
                 .call(userImplementation)
                 .then(deployToProduction.getClientAction()));
-        
+
         return deployProcessingRules;
     }
 
