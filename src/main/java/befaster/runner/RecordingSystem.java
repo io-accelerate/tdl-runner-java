@@ -5,6 +5,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
+import static befaster.runner.RunnerAction.deployToProduction;
 
 class RecordingSystem {
     private static final String RECORDING_SYSTEM_ENDPOINT = "http://localhost:41375";
@@ -53,5 +54,9 @@ class RecordingSystem {
         } catch (UnirestException e) {
             System.err.println("Could not reach recording system: " + e.getMessage());
         }
+    }
+
+    static void deployNotifyEvent(String lastFetchedRound) {
+        notifyEvent(lastFetchedRound, deployToProduction.getShortName());
     }
 }
