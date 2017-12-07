@@ -3,7 +3,7 @@ package befaster.runner;
 import tdl.client.actions.ClientAction;
 import tdl.client.actions.ClientActions;
 
-public enum RunnerAction {
+enum RunnerAction {
     getNewRoundDescription("new",ClientActions.stop()),
     deployToProduction("deploy", ClientActions.publish());
 

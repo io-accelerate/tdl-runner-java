@@ -4,6 +4,7 @@ import befaster.runner.client.HttpClient;
 import befaster.runner.client.CombinedClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tdl.client.ProcessingRules;
 import tdl.client.abstractions.UserImplementation;
 
 import java.io.BufferedReader;
@@ -14,7 +15,9 @@ import java.util.Map;
 
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.RoundManagement.saveDescription;
+import static befaster.runner.RunnerAction.deployToProduction;
 import static befaster.runner.RunnerAction.getNewRoundDescription;
+import static tdl.client.actions.ClientActions.publish;
 
 
 public class ClientRunner {
@@ -62,16 +65,17 @@ public class ClientRunner {
             return;
         }
         boolean useColours = Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true"));
-        CombinedClient combinedClient = new CombinedClient(journeyId, useColours, hostname, username, solutions, System.out::println);
+        CombinedClient combinedClient = new CombinedClient(journeyId, useColours, hostname, username, System.out::println);
 
         try {
             boolean shouldContinue = combinedClient.checkStatusOfChallenge();
             if (shouldContinue) {
                 String userInput = getUserInput(args);
+                ProcessingRules deployProcessingRules = createDeployProcessingRules();
                 String roundDescription = combinedClient.executeUserAction(
-                        x -> RecordingSystem.notifyEvent(RoundManagement.getLastFetchedRound(), x),
                         userInput,
-                        p -> saveDescription(p[0], p[1])
+                        () -> RecordingSystem.deployNotifyEvent(RoundManagement.getLastFetchedRound()),
+                        deployProcessingRules
                 );
                 RoundManagement.saveDescription(roundDescription, lastFetchedRound -> RecordingSystem.notifyEvent(lastFetchedRound, getNewRoundDescription.getShortName()));
             }
@@ -85,6 +89,23 @@ public class ClientRunner {
             LOG.error("The client sent something the server didn't expect.");
             System.out.println(e.getResponseMessage());
         }
+    }
+
+    private ProcessingRules createDeployProcessingRules() {
+        ProcessingRules deployProcessingRules = new ProcessingRules();
+
+        // Debt - do we need this anymore?
+        deployProcessingRules
+                .on("display_description")
+                .call(p -> saveDescription(p[0], p[1]))
+                .then(publish());
+
+        solutions.forEach((methodName, userImplementation) -> deployProcessingRules
+                .on(methodName)
+                .call(userImplementation)
+                .then(deployToProduction.getClientAction()));
+        
+        return deployProcessingRules;
     }
 
     private String getUserInput(String[] args) throws IOException {

@@ -1,26 +1,18 @@
 package befaster.runner.client;
 
-import befaster.runner.RunnerAction;
 import tdl.client.Client;
 import tdl.client.ProcessingRules;
-import tdl.client.abstractions.UserImplementation;
-
-import java.util.Map;
 import java.util.function.Consumer;
-
-import static tdl.client.actions.ClientActions.publish;
 
 public class CombinedClient {
     private HttpClient httpClient;
     private String hostname;
     private String username;
-    private Map<String, UserImplementation> solutions;
     private Consumer<String> printer;
 
-    public CombinedClient(String journeyId, boolean useColours, String hostname, String username, Map<String, UserImplementation> solutions, Consumer<String> printer) {
+    public CombinedClient(String journeyId, boolean useColours, String hostname, String username, Consumer<String> printer) {
         this.hostname = hostname;
         this.username = username;
-        this.solutions = solutions;
         this.printer = printer;
         httpClient = new HttpClient(hostname, journeyId, useColours);
     }
@@ -35,36 +27,21 @@ public class CombinedClient {
         return !availableActions.contains("No actions available.");
     }
 
-    public String executeUserAction(Consumer<String> deployCallback, String userInput, UserImplementation saveDescription) throws HttpClient.ServerErrorException, HttpClient.OtherCommunicationException, HttpClient.ClientErrorException {
+    public String executeUserAction(String userInput, Runnable deployCallback, ProcessingRules processingRules) throws HttpClient.ServerErrorException, HttpClient.OtherCommunicationException, HttpClient.ClientErrorException {
         if (userInput.equals("deploy")) {
-            deployToQueue(deployCallback, saveDescription);
+            deployToQueue(deployCallback, processingRules);
         }
         return executeAction(userInput);
     }
 
-    private void deployToQueue(Consumer<String> deployCallback, UserImplementation saveDescription) {
-        RunnerAction runnerAction = RunnerAction.deployToProduction;
-
+    private void deployToQueue(Runnable deployCallback, ProcessingRules processingRules) {
         Client client = new Client.Builder()
                 .setHostname(hostname)
                 .setUniqueId(username)
                 .create();
 
-        ProcessingRules processingRules = new ProcessingRules();
-
-        // Debt - do we need this anymore?
-        processingRules
-                .on("display_description")
-                .call(saveDescription)
-                .then(publish());
-
-        solutions.forEach((methodName, userImplementation) -> processingRules
-                .on(methodName)
-                .call(userImplementation)
-                .then(runnerAction.getClientAction()));
-
         client.goLiveWith(processingRules);
-        deployCallback.accept(runnerAction.getShortName());
+        deployCallback.run();
     }
 
     private String executeAction(String userInput) throws HttpClient.ServerErrorException, HttpClient.OtherCommunicationException, HttpClient.ClientErrorException {
