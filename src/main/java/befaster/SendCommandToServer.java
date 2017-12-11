@@ -48,6 +48,8 @@ public class SendCommandToServer {
     public static void main(String[] args) throws ConfigNotFoundException {
         ClientRunner.forUsername(readFromConfigFile("tdl_username"))
                 .withServerHostname(readFromConfigFile("tdl_hostname"))
+                .withJourneyId(readFromConfigFile("tdl_journey_id"))
+                .withColours(Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true")))
                 .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
                 .withSolutionFor("hello", p -> Hello.hello(p[0]))
                 .withSolutionFor("fizz_buzz", p -> FizzBuzz.fizzBuzz(asInt(p[0])))

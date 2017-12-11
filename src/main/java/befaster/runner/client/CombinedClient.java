@@ -2,7 +2,13 @@ package befaster.runner.client;
 
 import tdl.client.Client;
 import tdl.client.ProcessingRules;
+import tdl.client.abstractions.UserImplementation;
+import tdl.client.actions.ClientAction;
+
+import java.util.Map;
 import java.util.function.Consumer;
+
+import static tdl.client.actions.ClientActions.publish;
 
 public class CombinedClient {
     private HttpClient httpClient;
@@ -48,5 +54,22 @@ public class CombinedClient {
         String actionFeedback = httpClient.sendAction(userInput);
         printer.accept(actionFeedback);
         return httpClient.getRoundDescription();
+    }
+
+    public ProcessingRules createDeployProcessingRules(UserImplementation saveDescriptionUserImplementation, ClientAction deployAction, Map<String, UserImplementation> solutions) {
+        ProcessingRules deployProcessingRules = new ProcessingRules();
+
+        // Debt - do we need this anymore?
+        deployProcessingRules
+                .on("display_description")
+                .call(saveDescriptionUserImplementation)
+                .then(publish());
+
+        solutions.forEach((methodName, userImplementation) -> deployProcessingRules
+                .on(methodName)
+                .call(userImplementation)
+                .then(deployAction));
+
+        return deployProcessingRules;
     }
 }
