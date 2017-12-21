@@ -66,6 +66,7 @@ public class SendCommandToServer {
 
         ChallengeSession.forUsername(readFromConfigFile("tdl_username"))
                 .withServerHostname(readFromConfigFile("tdl_hostname"))
+                .withRecordingSystemOn(Boolean.parseBoolean(readFromConfigFile("tdl_require_rec", "true")))
                 .withJourneyId(readFromConfigFile("tdl_journey_id"))
                 .withActionProvider(new UserInputAction(args))
                 .withImplementationRunner(runner)
