@@ -1,11 +1,21 @@
 package befaster;
 
-import befaster.runner.ClientRunner;
 import befaster.runner.ConfigNotFoundException;
+import befaster.runner.ConsoleOutSystem;
+import befaster.runner.UserInputAction;
 import befaster.solutions.Checkout;
 import befaster.solutions.FizzBuzz;
 import befaster.solutions.Hello;
 import befaster.solutions.Sum;
+import tdl.client.audit.StdoutAuditStream;
+import tdl.client.queue.QueueBasedImplementationRunner;
+import tdl.client.runner.ActionProvider;
+import tdl.client.runner.ChallengeSession;
+import tdl.client.runner.ConsoleOut;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.TypeConversion.asInt;
@@ -46,15 +56,28 @@ public class SendCommandToServer {
      *
      **/
     public static void main(String[] args) throws ConfigNotFoundException {
-        ClientRunner.forUsername(readFromConfigFile("tdl_username"))
-                .withServerHostname(readFromConfigFile("tdl_hostname"))
-                .withJourneyId(readFromConfigFile("tdl_journey_id"))
-                .withColours(Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true")))
+
+        ConsoleOut consoleOut = new ConsoleOutSystem();
+        QueueBasedImplementationRunner runner = new QueueBasedImplementationRunner.Builder()
+                .setUniqueId(readFromConfigFile("tdl_username"))
+                .setAuditStream(new StdoutAuditStream())
+                .setHostname(readFromConfigFile("tdl_hostname"))
                 .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
                 .withSolutionFor("hello", p -> Hello.hello(p[0]))
                 .withSolutionFor("fizz_buzz", p -> FizzBuzz.fizzBuzz(asInt(p[0])))
                 .withSolutionFor("checkout", p -> Checkout.checkout(p[0]))
-                .start(args);
+                .create();
+
+        ChallengeSession.forUsername(readFromConfigFile("tdl_username"))
+                .withServerHostname(readFromConfigFile("tdl_hostname"))
+                .withJourneyId(readFromConfigFile("tdl_journey_id"))
+                .withColours(Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true")))
+                .withRecordingSystemOn(Boolean.parseBoolean(readFromConfigFile("tdl_require_rec", "true")))
+                .withPort(Integer.parseInt(readFromConfigFile("tdl_port")))
+                .withConsoleOut(consoleOut)
+                .withActionProvider(new UserInputAction(args))
+                .withImplementationRunner(runner)
+                .start();
     }
 
 }
