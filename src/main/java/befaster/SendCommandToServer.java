@@ -9,8 +9,9 @@ import befaster.solutions.Sum;
 import tdl.client.queue.QueueBasedImplementationRunner;
 import tdl.client.runner.ChallengeSession;
 
-import static befaster.runner.CredentialsConfigFile.readFromConfigFile;
 import static befaster.runner.TypeConversion.asInt;
+import static befaster.runner.Utils.getConfig;
+import static befaster.runner.Utils.getRunnerConfig;
 
 public class SendCommandToServer {
     /**
@@ -56,21 +57,16 @@ public class SendCommandToServer {
     public static void main(String[] args) throws ConfigNotFoundException {
 
         QueueBasedImplementationRunner runner = new QueueBasedImplementationRunner.Builder()
-                .setUniqueId(readFromConfigFile("tdl_username"))
-                .setHostname(readFromConfigFile("tdl_hostname"))
+                .setConfig(getRunnerConfig())
                 .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
                 .withSolutionFor("hello", p -> Hello.hello(p[0]))
                 .withSolutionFor("fizz_buzz", p -> FizzBuzz.fizzBuzz(asInt(p[0])))
                 .withSolutionFor("checkout", p -> Checkout.checkout(p[0]))
                 .create();
 
-        ChallengeSession.forUsername(readFromConfigFile("tdl_username"))
-                .withServerHostname(readFromConfigFile("tdl_hostname"))
-                .withColours(Boolean.parseBoolean(readFromConfigFile("tdl_use_coloured_output", "true")))
-                .withRecordingSystemOn(Boolean.parseBoolean(readFromConfigFile("tdl_require_rec", "true")))
-                .withJourneyId(readFromConfigFile("tdl_journey_id"))
+        ChallengeSession.forRunner(runner)
+                .withConfig(getConfig())
                 .withActionProvider(new UserInputAction(args))
-                .withImplementationRunner(runner)
                 .start();
     }
 
