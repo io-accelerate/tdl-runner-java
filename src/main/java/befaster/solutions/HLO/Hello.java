@@ -1,9 +1,9 @@
-package befaster.solutions;
+package befaster.solutions.HLO;
 
 import befaster.runner.SolutionNotImplementedException;
 
-public class Checkout {
-    public static Integer checkout(String skus) {
+public class Hello {
+    public static String hello(String friendName) {
         throw new SolutionNotImplementedException();
     }
 }

@@ -1,10 +1,10 @@
-package befaster.solutions;
+package befaster.solutions.SUM;
 
 import befaster.runner.SolutionNotImplementedException;
 
-public class FizzBuzz {
+public class Sum {
 
-    public static String fizzBuzz(Integer number) {
+    public static int sum(int x, int y) {
         throw new SolutionNotImplementedException();
     }
 

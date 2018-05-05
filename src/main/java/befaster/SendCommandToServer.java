@@ -2,10 +2,10 @@ package befaster;
 
 import befaster.runner.ConfigNotFoundException;
 import befaster.runner.UserInputAction;
-import befaster.solutions.Checkout;
-import befaster.solutions.FizzBuzz;
-import befaster.solutions.Hello;
-import befaster.solutions.Sum;
+import befaster.solutions.CHK.Checkout;
+import befaster.solutions.FIZ.FizzBuzz;
+import befaster.solutions.HLO.Hello;
+import befaster.solutions.SUM.Sum;
 import tdl.client.queue.QueueBasedImplementationRunner;
 import tdl.client.runner.ChallengeSession;
 
