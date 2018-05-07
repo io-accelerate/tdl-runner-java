@@ -9,7 +9,7 @@ SCRIPT_CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 challengeId=$1
 JACOCO_TEST_REPORT_CSV_FILE="${SCRIPT_CURRENT_DIR}/build/reports/jacoco/test/jacocoTestReport.csv"
 
-gradle clean test jacocoTestReport &>2 || true
+./gradlew clean test jacocoTestReport &>2 || true
 
 # $2 - position where the package name containing the challenge id is located in the CSV file
 # $9 - position where the line covered information for the challenge id is located in the CSV file
