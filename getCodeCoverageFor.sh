@@ -4,8 +4,10 @@ set -e
 set -u
 set -o pipefail
 
+SCRIPT_CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 challengeId=$1
-JACOCO_TEST_REPORT_CSV_FILE="./build/reports/jacoco/test/jacocoTestReport.csv"
+JACOCO_TEST_REPORT_CSV_FILE="${SCRIPT_CURRENT_DIR}/build/reports/jacoco/test/jacocoTestReport.csv"
 
 gradle clean test jacocoTestReport &>2 || true
 
