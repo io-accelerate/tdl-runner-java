@@ -1,11 +1,9 @@
-package befaster.solutions.SUM;
+package befaster.solutions.HLO;
 
 import befaster.runner.SolutionNotImplementedException;
 
-public class Sum {
-
-    public static int sum(int x, int y) {
+public class HelloSolution {
+    public String hello(String friendName) {
         throw new SolutionNotImplementedException();
     }
-
 }
