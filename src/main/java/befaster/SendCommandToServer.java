@@ -2,14 +2,9 @@ package befaster;
 
 import befaster.runner.ConfigNotFoundException;
 import befaster.runner.UserInputAction;
-import befaster.solutions.Checkout;
-import befaster.solutions.FizzBuzz;
-import befaster.solutions.Hello;
-import befaster.solutions.Sum;
 import tdl.client.queue.QueueBasedImplementationRunner;
 import tdl.client.runner.ChallengeSession;
 
-import static befaster.runner.TypeConversion.asInt;
 import static befaster.runner.Utils.getConfig;
 import static befaster.runner.Utils.getRunnerConfig;
 
@@ -55,13 +50,14 @@ public class SendCommandToServer {
      *
      **/
     public static void main(String[] args) throws ConfigNotFoundException {
+        EntryPointMapping entry = new EntryPointMapping();
 
         QueueBasedImplementationRunner runner = new QueueBasedImplementationRunner.Builder()
                 .setConfig(getRunnerConfig())
-                .withSolutionFor("sum", p -> Sum.sum(asInt(p[0]), asInt(p[1])))
-                .withSolutionFor("hello", p -> Hello.hello(p[0]))
-                .withSolutionFor("fizz_buzz", p -> FizzBuzz.fizzBuzz(asInt(p[0])))
-                .withSolutionFor("checkout", p -> Checkout.checkout(p[0]))
+                .withSolutionFor("sum", entry::sum)
+                .withSolutionFor("hello", entry::hello)
+                .withSolutionFor("fizz_buzz", entry::fizzBuzz)
+                .withSolutionFor("checkout", entry::checkout)
                 .create();
 
         ChallengeSession.forRunner(runner)

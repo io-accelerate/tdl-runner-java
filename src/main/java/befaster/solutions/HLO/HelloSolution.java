@@ -1,11 +1,9 @@
-package befaster.solutions;
+package befaster.solutions.HLO;
 
 import befaster.runner.SolutionNotImplementedException;
 
-public class FizzBuzz {
-
-    public static String fizzBuzz(Integer number) {
+public class HelloSolution {
+    public String hello(String friendName) {
         throw new SolutionNotImplementedException();
     }
-
 }
