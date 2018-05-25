@@ -12,7 +12,7 @@ JACOCO_TEST_REPORT_XML_FILE="${SCRIPT_CURRENT_DIR}/build/reports/jacoco/test/jac
 mkdir -p ${SCRIPT_CURRENT_DIR}/target
 JAVA_CODE_COVERAGE_INFO="${SCRIPT_CURRENT_DIR}/target/java-code-coverage.txt"
 
-./gradlew -q clean test jacocoTestReport || true 1>&2
+( cd ${SCRIPT_CURRENT_DIR} && ./gradlew -q clean test jacocoTestReport || true 1>&2 )
 
 [ -e ${JAVA_CODE_COVERAGE_INFO} ] && rm ${JAVA_CODE_COVERAGE_INFO}
 
