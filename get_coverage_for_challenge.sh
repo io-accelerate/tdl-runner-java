@@ -13,6 +13,7 @@ mkdir -p ${SCRIPT_CURRENT_DIR}/target
 JAVA_CODE_COVERAGE_INFO="${SCRIPT_CURRENT_DIR}/target/coverage.tdl"
 
 export JAVA_OPTS=${JAVA_OPTS:-""}
+export GRADLE_OPTS=${GRADLE_OPTS:-""}
 ( . ${SCRIPT_CURRENT_DIR}/gradlew -q clean test jacocoTestReport || true 1>&2 )
 
 [ -e ${JAVA_CODE_COVERAGE_INFO} ] && rm ${JAVA_CODE_COVERAGE_INFO}
