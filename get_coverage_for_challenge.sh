@@ -10,7 +10,7 @@ SCRIPT_CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CHALLENGE_ID=$1
 JACOCO_TEST_REPORT_XML_FILE="${SCRIPT_CURRENT_DIR}/build/reports/jacoco/test/jacocoTestReport.xml"
 mkdir -p ${SCRIPT_CURRENT_DIR}/target
-JAVA_CODE_COVERAGE_INFO="${SCRIPT_CURRENT_DIR}/target/coverage.tdl"
+JAVA_CODE_COVERAGE_INFO="${SCRIPT_CURRENT_DIR}/coverage.tdl"
 
 export JAVA_OPTS=${JAVA_OPTS:-""}
 export GRADLE_OPTS=${GRADLE_OPTS:-""}
