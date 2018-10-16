@@ -17,6 +17,10 @@ depending on the support for these types of build files.
 
 ### Eclipse
 
+#### Colourised Console plugin
+
+Eclipse supports a number of plugins to enable colourised Console text, we suggest you install `ANSI Console plugin`, for other recommendations see this [SO post](https://stackoverflow.com/questions/233790/colorize-logs-in-eclipse-console).
+
 #### Gradle project
 
 Importing an existing Gradle project into Eclipse
