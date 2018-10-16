@@ -9,6 +9,33 @@
 
 ### Eclipse
 
+#### Maven project
+
+Importing an existing Maven project into Eclipse
+- Open Eclipse and close any existing project
+- Select the File > Import menu option
+- From the Import dialog, select Maven > Existing Maven Project
+- Navigate till you get a dialog with the Browse button, Click on Browse
+- Navigate to your Maven project folder and select the top-level folder
+- The `pom.xml` file of the project should be automatically select and displayed
+- Navigate further by clicking on Next (if visible), till you arrive at Finish
+- Click Finish...
+
+See detailed help [here](http://www.vogella.com/tutorials/EclipseMaven/article.html)
+
+#### Gradle project
+
+Importing an existing Gradle project into Eclipse
+- Open Eclipse and close any existing project
+- Select the File > Import menu option
+- From the Import dialog, select Gradle > Existing Gradle Project
+- Navigate till you get a dialog with the Browse button, Click on Browse 
+- Navigate to your Gradle project folder and select the top-level folder...
+- Keep clicking Next
+- On the final screen Gradle wrapper related details are shown along with the Finish button 
+- Click Finish...
+
+See detailed help [here](http://www.vogella.com/tutorials/EclipseGradle/article.html)
 
 ### IntelliJ
 
@@ -34,7 +61,7 @@ See also [Importing a project from a Gradle model](https://www.jetbrains.com/hel
 
 ### Other IDEs
 
-You have to import and run the respective Maven project (`pom.xml` file) and Gradle project (`build.gradle` file) files into your IDE, depending on the support for these types of build files. 
+You have to import and run the respective Maven project (`pom.xml` file) or Gradle project (`build.gradle` file) files into your IDE, depending on the support for these types of build systems in your IDE. 
 
 ## 3. How to start
 
