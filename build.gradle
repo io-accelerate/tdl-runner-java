@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     //TODO Don't forget to also update the Maven pom.xml
-    compile 'ro.ghionoiu:tdl-client-java:0.22.2'
+    compile 'ro.ghionoiu:tdl-client-java:0.24.0'
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.google.guava:guava:18.0'
 
