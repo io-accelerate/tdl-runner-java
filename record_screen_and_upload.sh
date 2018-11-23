@@ -223,14 +223,24 @@ startRecorderViaPackr() {
     PARAM_STORE_DIR="--store ${APP_HOME}/record/localstore"
     PARAM_SOURCECODE_DIR="--sourcecode ${APP_HOME}"
 
-    # typically we would be downloading this via wget from an S3 bucket
+    # typically we would be downloading this via wget from githib releases page
     if [[ ! -s record-and-upload.zip ]]; then
-        cp $HOME/git-repos/BeFaster/record-and-upload/scripts/packr-scripts/linux/record-and-upload.zip .
+        wget --no-clobber --continue https://www.dropbox.com/s/09e0zxknz7ir4bi/record-and-upload.zip
     fi    
 
-    unzip -u -o record-and-upload.zip
+    if [[ -s record-and-upload.zip ]]; then
+        unzip -u -o record-and-upload.zip        
+    else
+        echo "Failed to find a valid record-and-upload.zip, either the downloading or unpacking of the zip file failed."
+        exit -1
+    fi
 
-    ./record/record-and-upload ${PARAM_CONFIG_FILE} ${PARAM_STORE_DIR} ${PARAM_SOURCECODE_DIR} $@
+    if [[ -e record ]]; then
+        ./record/record-and-upload ${PARAM_CONFIG_FILE} ${PARAM_STORE_DIR} ${PARAM_SOURCECODE_DIR} $@
+    else
+        echo "Failed to find the 'record' folder, unpacking of the zip file might have failed."
+        exit -1        
+    fi
 
     # JAVACMD=${APP_HOME}/record/jre/bin/java
     # chmod +x ${JAVACMD}
