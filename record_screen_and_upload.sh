@@ -225,7 +225,12 @@ startRecorderViaPackr() {
 
     # typically we would be downloading this via wget from githib releases page
     if [[ ! -s record-and-upload.zip ]]; then
-        wget --no-clobber --continue https://www.dropbox.com/s/09e0zxknz7ir4bi/record-and-upload.zip
+        # wget --no-clobber --continue https://www.dropbox.com/s/09e0zxknz7ir4bi/record-and-upload.zip   <=== we would have done it in this manner using the Linux wget command
+        ## wget is invoked in this manner due as wget depends on a Linux library and this library is a placed in the tools folder
+        ## typically by setting java.library.path to the tools folder we could get this to work but for some reason it won't work
+        cd tools && ./wget https://github.com/julianghionoiu/record-and-upload/releases/download/v0.0.16/record-and-upload-linux.zip ../record-and-upload.zip && cd ..
+
+        ## if the above is failing, replace the download url above with the location to download record-and-upload.zip
     fi    
 
     if [[ -s record-and-upload.zip ]]; then
