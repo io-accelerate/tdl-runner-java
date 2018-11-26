@@ -238,7 +238,7 @@ startRecorderViaPackr() {
     fi    
 
     if [[ -s record-and-upload.zip ]]; then
-        ./tools/unzip -u -o record-and-upload.zip        
+        ./tools/unzip-${OSName} -u -o record-and-upload.zip        
     else
         echo "Failed to find a valid record-and-upload.zip, either the downloading or unpacking of the zip file failed."
         exit -1
