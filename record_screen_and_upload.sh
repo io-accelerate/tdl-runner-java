@@ -254,9 +254,9 @@ startRecorderViaPackr() {
     fi
 
     if [[ -e record ]]; then
-        if [[ "${OSName}"=="linux"]]; then
+        if [[ "${OSName}" = "linux" ]]; then
             ./record/record-and-upload ${PARAM_CONFIG_FILE} ${PARAM_STORE_DIR} ${PARAM_SOURCECODE_DIR} $@
-        elif [[ "${OSName}"=="macos"]]; then
+        elif [[ "${OSName}" = "macos" ]]; then
             ./record/Contents/MacOS/record-and-upload ${PARAM_CONFIG_FILE} ${PARAM_STORE_DIR} ${PARAM_SOURCECODE_DIR} $@
         fi
     else
