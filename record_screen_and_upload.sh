@@ -254,7 +254,11 @@ startRecorderViaPackr() {
     fi
 
     if [[ -e record ]]; then
-        ./record/record-and-upload ${PARAM_CONFIG_FILE} ${PARAM_STORE_DIR} ${PARAM_SOURCECODE_DIR} $@
+        if [[ "${OSName}" = "linux" ]]; then
+            ./record/record-and-upload ${PARAM_CONFIG_FILE} ${PARAM_STORE_DIR} ${PARAM_SOURCECODE_DIR} $@
+        elif [[ "${OSName}" = "macos" ]]; then
+            ./record/Contents/MacOS/record-and-upload ${PARAM_CONFIG_FILE} ${PARAM_STORE_DIR} ${PARAM_SOURCECODE_DIR} $@
+        fi
     else
         echo "Failed to find the 'record' folder, unpacking of the zip file might have failed."
         exit -1        
