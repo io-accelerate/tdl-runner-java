@@ -20,3 +20,5 @@ out
 target
 *.iml
 coverage.tdl
+*.tgz
+*.zip
