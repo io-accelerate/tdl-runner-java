@@ -247,7 +247,11 @@ startRecorderViaPackr() {
     fi    
 
     if [[ -s ${RECORD_AND_UPLOAD_TGZ} ]]; then
-        tar xvzf ${RECORD_AND_UPLOAD_TGZ} || ($(downloadURLMessage) && true)
+        if [[ ! -e record ]]; then
+            tar xvzf ${RECORD_AND_UPLOAD_TGZ} || ($(downloadURLMessage) && true)
+        else
+            echo "record folder already exists, proceding"
+        fi
     else
         echo "Failed to find a valid ${RECORD_AND_UPLOAD_TGZ}, either the downloading or unpacking of the zip file failed."
         downloadURLMessage
