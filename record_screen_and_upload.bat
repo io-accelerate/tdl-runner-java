@@ -37,6 +37,36 @@ if "%DIRNAME%" == "" set DIRNAME=.
 set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%
 
+@rem Starting now we will use the packedArchive section, and no longer the section in between here and the packedArchive
+@rem 
+set JARFILE=%APP_HOME%\record\record-and-upload-capsule.jar
+set PARAM_CONFIG_FILE=--config %APP_HOME%\config\credentials.config
+set PARAM_STORE_DIR=--store %APP_HOME%\record\localstore
+set PARAM_SOURCECODE_DIR=--sourcecode %APP_HOME%
+
+:init
+@rem Get command-line arguments, handling Windowz variants
+
+if not "%OS%" == "Windows_NT" goto win9xME_args
+if "%@eval[2+2]" == "4" goto 4NT_args
+
+:win9xME_args
+@rem Slurp the command line arguments.
+set CMD_LINE_ARGS=
+set _SKIP=2
+
+:win9xME_args_slurp
+if "x%~1" == "x" goto packedArchive
+
+set CMD_LINE_ARGS=%*
+goto packedArchive
+
+:4NT_args
+@rem Get arguments from the 4NT Shell from JP Software
+set CMD_LINE_ARGS=%$
+goto packagedArchive
+@rem
+
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
 
@@ -83,34 +113,8 @@ echo location of your Java installation.
 
 goto fail
 
-:init
-@rem Get command-line arguments, handling Windowz variants
-
-if not "%OS%" == "Windows_NT" goto win9xME_args
-if "%@eval[2+2]" == "4" goto 4NT_args
-
-:win9xME_args
-@rem Slurp the command line arguments.
-set CMD_LINE_ARGS=
-set _SKIP=2
-
-:win9xME_args_slurp
-if "x%~1" == "x" goto execute
-
-set CMD_LINE_ARGS=%*
-goto execute
-
-:4NT_args
-@rem Get arguments from the 4NT Shell from JP Software
-set CMD_LINE_ARGS=%$
-
 :execute
 @rem Setup the command line
-
-set JARFILE=%APP_HOME%\record\record-and-upload-capsule.jar
-set PARAM_CONFIG_FILE=--config %APP_HOME%\config\credentials.config
-set PARAM_STORE_DIR=--store %APP_HOME%\record\localstore
-set PARAM_SOURCECODE_DIR=--sourcecode %APP_HOME%
 
 %JAVA_EXE% -version
 @echo on
@@ -192,5 +196,58 @@ exit /b 1
 
 :mainEnd
 if "%OS%"=="Windows_NT" endlocal
+
+:packedArchive
+
+set RELEASE_VERSION=v0.0.16
+set OSName=windows
+set JAVA_EXE=%APP_HOME%\record\jre\bin\java.exe
+set JARFILE=%APP_HOME%\record\record-and-upload-%RELEASE_VERSION%.jar
+set RECORD_AND_UPLOAD_ZIP=record-and-upload-%RELEASE_VERSION%-%OSName%.zip
+set WGET_DOWNLOAD_URL='https://github.com/julianghionoiu/record-and-upload/releases/download/%RELEASE_VERSION%/%RECORD_AND_UPLOAD_ZIP%
+
+@rem typically we would be downloading this via wget from githib releases page
+if not exist %RECORD_AND_UPLOAD_ZIP% (
+    @rem wget --no-clobber --continue https://www.dropbox.com/s/09e0zxknz7ir4bi/record-and-upload.zip   <=== we would have done it in this manner using the Linux wget command
+    @rem wget is invoked in this manner due as wget depends on a Linux library and this library is a placed in the tools folder
+    @rem typically by setting java.library.path to the tools folder we could get this to work but for some reason it won't work
+    cd tools 
+    wget-%OSName% %WGET_DOWNLOAD_URL% ../%RECORD_AND_UPLOAD_ZIP%
+    cd ..
+
+    @rem if the above is failing, replace the download url above with the location to download record-and-upload.zip
+)
+
+if exist %RECORD_AND_UPLOAD_ZIP% (
+    if not exist record (
+      unzip %RECORD_AND_UPLOAD_ZIP%
+    ) else (
+      echo "record folder already exists, proceeding"
+    )
+) else (
+    echo "Failed to find a valid %RECORD_AND_UPLOAD_ZIP%, either the downloading or unpacking of the zip file failed."
+    goto downloadURLMessage
+)
+
+if exist record (
+   echo "Starting application"
+   @echo on
+   @rem Execute Record
+   cd %APP_HOME%\record\
+   "%JAVA_EXE%" %JAVA_OPTS% -jar "%JARFILE%" %PARAM_CONFIG_FILE% %PARAM_STORE_DIR% %PARAM_SOURCECODE_DIR% %CMD_LINE_ARGS%
+   cd %APP_HOME%\
+   @echo off
+) else (
+  echo "Failed to find the 'record' folder, unpacking of the zip file might have failed."
+  exit 1
+)
+goto omega
+
+pause
+:downloadURLMessage
+echo "--------------------------------------------------------------------------------------"
+echo "Please download %WGET_DOWNLOAD_URL% and place it in the folder where $0 can be found."
+echo "--------------------------------------------------------------------------------------"
+exit 1
 
 :omega
