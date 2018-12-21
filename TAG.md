@@ -21,7 +21,8 @@ Update the runner version (0.X.Y.Z) in:
 Commit all changes then:
 
 ```bash
-git tag -a "v$(cat version.txt)"
+export RELEASE_TAG="v$(cat version.txt)"
+git tag -a "${RELEASE_TAG}" -m "${RELEASE_TAG}"
 git push --tags
 git push
 ```
