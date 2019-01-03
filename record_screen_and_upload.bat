@@ -35,7 +35,7 @@ set DEFAULT_JVM_OPTS=
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.
 set APP_BASE_NAME=%~n0
-set APP_HOME=%DIRNAME%
+set SCRIPT_CURRENT_DIR=%DIRNAME%
 
 @rem Find java.exe
 if defined JAVA_HOME goto findJavaFromJavaHome
@@ -107,10 +107,10 @@ set CMD_LINE_ARGS=%$
 :execute
 @rem Setup the command line
 
-set JARFILE=%APP_HOME%\record\record-and-upload-capsule.jar
-set PARAM_CONFIG_FILE=--config %APP_HOME%\config\credentials.config
-set PARAM_STORE_DIR=--store %APP_HOME%\record\localstore
-set PARAM_SOURCECODE_DIR=--sourcecode %APP_HOME%
+set JARFILE=%SCRIPT_CURRENT_DIR%\record\bin\record-and-upload.jar
+set PARAM_CONFIG_FILE=--config %SCRIPT_CURRENT_DIR%\config\credentials.config
+set PARAM_STORE_DIR=--store %SCRIPT_CURRENT_DIR%\record\localstore
+set PARAM_SOURCECODE_DIR=--sourcecode %SCRIPT_CURRENT_DIR%
 
 %JAVA_EXE% -version
 @echo on
