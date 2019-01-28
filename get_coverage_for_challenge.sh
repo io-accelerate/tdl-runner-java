@@ -15,16 +15,17 @@ JAVA_CODE_COVERAGE_INFO="${SCRIPT_CURRENT_DIR}/coverage.tdl"
 export JAVA_OPTS=${JAVA_OPTS:-""}
 export GRADLE_OPTS=${GRADLE_OPTS:-""}
 
-( . ${SCRIPT_CURRENT_DIR}/gradlew -p ${SCRIPT_CURRENT_DIR} -q clean test jacocoTestReport --console=plain || true 1>&2 )
+( . ${SCRIPT_CURRENT_DIR}/gradlew -p ${SCRIPT_CURRENT_DIR} -q clean test jacocoTestReport --console=plain 1>&2 )
 
 [ -e ${JAVA_CODE_COVERAGE_INFO} ] && rm ${JAVA_CODE_COVERAGE_INFO}
 
 if [ -f "${JACOCO_TEST_REPORT_XML_FILE}" ]; then
-    COVERAGE_OUTPUT=$(xmllint --xpath '//package[@name="befaster/solutions/'${CHALLENGE_ID}'"]/counter[@type="INSTRUCTION"]' ${JACOCO_TEST_REPORT_XML_FILE} || true)
     PERCENTAGE=$(( 0 ))
+    echo ${PERCENTAGE} > ${JAVA_CODE_COVERAGE_INFO}
+    COVERAGE_OUTPUT=$(xmllint --xpath '//package[@name="befaster/solutions/'${CHALLENGE_ID}'"]/counter[@type="INSTRUCTION"]' ${JACOCO_TEST_REPORT_XML_FILE})
     if [[ ! -z "${COVERAGE_OUTPUT}" ]]; then
-        MISSED=$(echo $COVERAGE_OUTPUT | awk '{print missed, $3}' | tr '="' ' ' | awk '{print $2}')
-        COVERED=$(echo $COVERAGE_OUTPUT | awk '{print missed, $4}' | tr '="' ' '| awk '{print $2}')
+        MISSED=$(echo ${COVERAGE_OUTPUT} | awk '{print missed, $3}' | tr '="' ' ' | awk '{print $2}')
+        COVERED=$(echo ${COVERAGE_OUTPUT} | awk '{print missed, $4}' | tr '="' ' '| awk '{print $2}')
         TOTAL_LINES=$((MISSED + $COVERED))
         PERCENTAGE=$(($COVERED * 100 / $TOTAL_LINES))
     fi
