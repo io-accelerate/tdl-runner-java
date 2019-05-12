@@ -1,11 +1,14 @@
 package befaster;
 
+import befaster.solutions.ARRS.ArraySumSolution;
 import befaster.solutions.CHK.CheckoutSolution;
 import befaster.solutions.FIZ.FizzBuzzSolution;
 import befaster.solutions.HLO.HelloSolution;
+import befaster.solutions.IRNG.IntRangeSolution;
 import befaster.solutions.SUM.SumSolution;
+import com.google.gson.JsonElement;
 
-import static befaster.runner.TypeConversion.asInt;
+import java.util.ArrayList;
 
 /**
  * This class maps an RPC event to a method call.
@@ -17,32 +20,48 @@ import static befaster.runner.TypeConversion.asInt;
  * Mapping events to static methods might have also worked but
  * that would have resulted in uncovered default constructors.
  */
-public class EntryPointMapping {
+class EntryPointMapping {
     private final SumSolution sumSolution;
     private final HelloSolution helloSolution;
+    private final ArraySumSolution arraySumSolution;
+    private final IntRangeSolution intRangeSolution;
     private final FizzBuzzSolution fizzBuzzSolution;
     private final CheckoutSolution checkoutSolution;
 
     EntryPointMapping() {
         sumSolution = new SumSolution();
         helloSolution = new HelloSolution();
+        arraySumSolution = new ArraySumSolution();
+        intRangeSolution = new IntRangeSolution();
         fizzBuzzSolution = new FizzBuzzSolution();
         checkoutSolution = new CheckoutSolution();
     }
 
-    public Object sum(String ... p) {
-        return sumSolution.compute(asInt(p[0]), asInt(p[1]));
+    Object sum(JsonElement... p) {
+        return sumSolution.compute(p[0].getAsInt(), p[1].getAsInt());
     }
 
-    public Object hello(String ... p) {
-        return helloSolution.hello(p[0]);
+    Object hello(JsonElement... p) {
+        return helloSolution.hello(p[0].getAsString());
     }
 
-    public Object fizzBuzz(String ... p) {
-        return fizzBuzzSolution.fizzBuzz(asInt(p[0]));
+    Object arraySum(JsonElement[] p) {
+        ArrayList<Integer> intArray = new ArrayList<>();
+        for (JsonElement jsonElement : p[0].getAsJsonArray()) {
+            intArray.add(jsonElement.getAsInt());
+        }
+        return arraySumSolution.compute(intArray);
     }
 
-    public Object checkout(String ... p) {
-        return checkoutSolution.checkout(p[0]);
+    Object intRange(JsonElement... p) {
+        return intRangeSolution.generate(p[0].getAsInt(), p[1].getAsInt());
+    }
+
+    Object fizzBuzz(JsonElement... p) {
+        return fizzBuzzSolution.fizzBuzz(p[0].getAsInt());
+    }
+
+    Object checkout(JsonElement... p) {
+        return checkoutSolution.checkout(p[0].getAsString());
     }
 }

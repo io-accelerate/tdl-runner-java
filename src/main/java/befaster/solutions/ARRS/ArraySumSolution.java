@@ -1,11 +1,13 @@
-package befaster.solutions.SUM;
+package befaster.solutions.ARRS;
 
 import befaster.runner.SolutionNotImplementedException;
 
-@SuppressWarnings("unused")
-public class SumSolution {
+import java.util.ArrayList;
 
-    public int compute(int x, int y) {
+@SuppressWarnings("unused")
+public class ArraySumSolution {
+
+    public int compute(ArrayList<Integer> intArray) {
         throw new SolutionNotImplementedException();
     }
 

@@ -15,8 +15,7 @@ repositories {
 }
 
 dependencies {
-    //TODO Don't forget to also update the Maven pom.xml
-    compile 'ro.ghionoiu:tdl-client-java:0.24.0'
+    compile 'ro.ghionoiu:tdl-client-java:0.26.0'
     compile 'com.mashape.unirest:unirest-java:1.4.9'
     compile 'com.google.guava:guava:18.0'
 
@@ -61,6 +60,7 @@ test {
 
 jacocoTestReport {
     reports {
+        //noinspection GroovyAssignabilityCheck
         xml.enabled true
         html.destination file("${buildDir}/jacocoHtml")
     }

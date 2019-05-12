@@ -17,8 +17,7 @@
 
 ## Detailed notes on importing a project
 
-You have to import and run the respective Maven project (`pom.xml` file)
-or Gradle project (`build.gradle` file) files into your IDE,
+You have to import and run the respective Gradle project (`build.gradle` file) files into your IDE,
 depending on the support for these types of build files.
 
 ### IntelliJ
@@ -35,16 +34,6 @@ Importing an existing Gradle project into IntelliJ
 
 See also [Importing a project from a Gradle model](https://www.jetbrains.com/help/idea/gradle.html#gradle_import)
 
-#### Maven project
-
-Importing an existing Maven project into IntelliJ
-- From the Welcome screen, click Import Project...
-- Navigate to your Maven project (`pom.xml` file) and select the top-level folder...
-- Click OK...
-
-See [How to import post from JetBrains](https://blog.jetbrains.com/idea/2008/03/opening-maven-projects-is-easy-as-pie/)
-
-
 ### Eclipse
 
 #### Colourised Console plugin
@@ -59,16 +48,6 @@ Importing an existing Gradle project into Eclipse
 
 See also  [here](http://www.vogella.com/tutorials/EclipseGradle/article.html)
 
-#### Maven project
-
-Importing an existing Maven project into Eclipse
-- Select the File > Import menu option, select Maven > Existing Maven Project
-- Navigate to your Maven project folder and select the top-level folder
-- The `pom.xml` file of the project should be automatically select and displayed
-
-See also  [here](http://www.vogella.com/tutorials/EclipseMaven/article.html)
-
-
 ### Other IDEs
 
-IDEs normally come with support for Maven or Gradle. If not, you might have to research how it is done for your particular IDE.
+IDEs normally come with support for Gradle. If not, you might have to research how it is done for your particular IDE.

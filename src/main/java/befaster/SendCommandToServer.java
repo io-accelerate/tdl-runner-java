@@ -56,6 +56,8 @@ public class SendCommandToServer {
                 .setConfig(getRunnerConfig())
                 .withSolutionFor("sum", entry::sum)
                 .withSolutionFor("hello", entry::hello)
+                .withSolutionFor("array_sum", entry::arraySum)
+                .withSolutionFor("int_range", entry::intRange)
                 .withSolutionFor("fizz_buzz", entry::fizzBuzz)
                 .withSolutionFor("checkout", entry::checkout)
                 .create();
