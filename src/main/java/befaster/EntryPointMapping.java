@@ -9,6 +9,7 @@ import befaster.solutions.SUM.SumSolution;
 import com.google.gson.JsonElement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class maps an RPC event to a method call.
@@ -37,31 +38,31 @@ class EntryPointMapping {
         checkoutSolution = new CheckoutSolution();
     }
 
-    Object sum(JsonElement... p) {
-        return sumSolution.compute(p[0].getAsInt(), p[1].getAsInt());
+    Object sum(List<JsonElement> p) {
+        return sumSolution.compute(p.get(0).getAsInt(), p.get(1).getAsInt());
     }
 
-    Object hello(JsonElement... p) {
-        return helloSolution.hello(p[0].getAsString());
+    Object hello(List<JsonElement> p) {
+        return helloSolution.hello(p.get(0).getAsString());
     }
 
-    Object arraySum(JsonElement[] p) {
+    Object arraySum(List<JsonElement> p) {
         ArrayList<Integer> intArray = new ArrayList<>();
-        for (JsonElement jsonElement : p[0].getAsJsonArray()) {
+        for (JsonElement jsonElement : p.get(0).getAsJsonArray()) {
             intArray.add(jsonElement.getAsInt());
         }
         return arraySumSolution.compute(intArray);
     }
 
-    Object intRange(JsonElement... p) {
-        return intRangeSolution.generate(p[0].getAsInt(), p[1].getAsInt());
+    Object intRange(List<JsonElement> p) {
+        return intRangeSolution.generate(p.get(0).getAsInt(), p.get(1).getAsInt());
     }
 
-    Object fizzBuzz(JsonElement... p) {
-        return fizzBuzzSolution.fizzBuzz(p[0].getAsInt());
+    Object fizzBuzz(List<JsonElement> p) {
+        return fizzBuzzSolution.fizzBuzz(p.get(0).getAsInt());
     }
 
-    Object checkout(JsonElement... p) {
-        return checkoutSolution.checkout(p[0].getAsString());
+    Object checkout(List<JsonElement> p) {
+        return checkoutSolution.checkout(p.get(0).getAsString());
     }
 }
