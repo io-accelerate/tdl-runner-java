@@ -37,7 +37,7 @@ public class SendCommandToServer {
      *   |  3.  | Read the description from the "challenges" folder.                    |
      *   |  4.  | Locate the file corresponding to your current challenge in:           |
      *   |      |   ./src/main/java/befaster/solutions                                  |
-     *   |  5.  | Write your solution in place of the following exception:              |
+     *   |  5.  | Replace the following placeholder exception with your solution:       |
      *   |      |   "throw new SolutionNotImplementedException()"                       |
      *   |  6.  | Deploy to production by typing "deploy".                              |
      *   |  7.  | Observe the output, check for failed requests.                        |
