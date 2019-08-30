@@ -1,13 +1,30 @@
-.idea
-.DS_Store
+# ~~~~~~~~~ Global ~~~~~~~~~
+
+# Ignore all dot folders
+.*
+
+# Ignore all archives
+*.zip
+*.tar.gz
+*.tar
+*.rar
+
+# ~~~~~~~~~ Language specific ~~~~~~~~~
+*.class
+hs_err_pid*
 build
-.gradle
-challenges/*.txt
-record/localstore
-record/bin
-jre
-config/credentials.config
 out
 target
+
+# ~~~~~~~~~ IDE specific ~~~~~~~~~
+
+# Idea
 *.iml
+
+# ~~~~~~~~~ Accelerate ~~~~~~~~~
+**/challenges/*.txt
+config/credentials.config
+record/localstore
+record/bin
 coverage.tdl
+jre
