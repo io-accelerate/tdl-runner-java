@@ -23,8 +23,7 @@ target
 
 # ~~~~~~~~~ Accelerate ~~~~~~~~~
 **/challenges/*.txt
+record
 config/credentials.config
-record/localstore
-record/bin
 coverage.tdl
 jre
