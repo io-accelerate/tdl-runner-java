@@ -62,6 +62,7 @@ public class SendCommandToServer {
                 .withSolutionFor("int_range", entry::intRange)
                 .withSolutionFor("fizz_buzz", entry::fizzBuzz)
                 .withSolutionFor("checkout", entry::checkout)
+                .withSolutionFor("checklite", entry::checklite)
                 .create();
 
         ChallengeSession.forRunner(runner)
