@@ -2,7 +2,6 @@
 
 Change library version is:
 - `build.gradle`
-- `pom.xml`
 
 Runner version = Client version + Runner patch
 Example:
