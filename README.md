@@ -3,7 +3,7 @@
 
 ## 1. Requirements
 
-- `Java 1.8`
+- `Java 17`
 
 ## 2. How to start
 

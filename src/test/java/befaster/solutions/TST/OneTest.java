@@ -1,7 +1,7 @@
 package befaster.solutions.TST;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class OneTest {
     private One one;
 
-    @Before
+    @BeforeEach
     public void name() {
         one = new One();
     }
