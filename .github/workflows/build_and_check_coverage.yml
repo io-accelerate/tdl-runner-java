@@ -1,4 +1,4 @@
-name: Python behave test
+name: Java Junit5 test
 
 on: [push]
 
