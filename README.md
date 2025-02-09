@@ -3,11 +3,11 @@
 
 ## 1. Requirements
 
-- `Java 17`
+- `Java 21`
 
 ## 2. How to start
 
-- Open `src/main/java/befaster/SendCommandToServer.java`
+- Open `src/main/java/io/accelerate/SendCommandToServer.java`
 - Read the comments as documentation, they will guide through the rest of the setup
 
 

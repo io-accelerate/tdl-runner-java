@@ -22,7 +22,7 @@ export GRADLE_OPTS=${GRADLE_OPTS:-""}
 if [ -f "${JACOCO_TEST_REPORT_XML_FILE}" ]; then
     PERCENTAGE=$(( 0 ))
     echo ${PERCENTAGE} > ${JAVA_CODE_COVERAGE_INFO}
-    COVERAGE_OUTPUT=$(xmllint --xpath '//package[@name="befaster/solutions/'${CHALLENGE_ID}'"]/counter[@type="INSTRUCTION"]' ${JACOCO_TEST_REPORT_XML_FILE})
+    COVERAGE_OUTPUT=$(xmllint --xpath '//package[@name="io/accelerate/solutions/'${CHALLENGE_ID}'"]/counter[@type="INSTRUCTION"]' ${JACOCO_TEST_REPORT_XML_FILE})
     if [[ ! -z "${COVERAGE_OUTPUT}" ]]; then
         MISSED=$(echo ${COVERAGE_OUTPUT} | awk '{print missed, $3}' | tr '="' ' ' | awk '{print $2}')
         COVERED=$(echo ${COVERAGE_OUTPUT} | awk '{print missed, $4}' | tr '="' ' '| awk '{print $2}')

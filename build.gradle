@@ -4,10 +4,10 @@ plugins {
     id 'jacoco'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
-group = 'ro.ghionoiu'
+group = 'io.accelerate'
 version = project.version.toString()
 
 repositories {
@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'ro.ghionoiu:tdl-client-java:0.26.5'
+    implementation 'io.accelerate:tdl-client-java:0.27.0'
     implementation 'com.google.code.gson:gson:2.8.9'
 
     testImplementation('org.junit.jupiter:junit-jupiter:5.9.1')
@@ -25,7 +25,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'befaster.SendCommandToServer'
+    mainClass = 'io.accelerate.SendCommandToServer'
 }
 
 run {
