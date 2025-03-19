@@ -60,6 +60,10 @@ public class SendCommandToServer {
                 .withSolutionFor("hello", entry::hello)
                 .withSolutionFor("fizz_buzz", entry::fizzBuzz)
                 .withSolutionFor("checkout", entry::checkout)
+                .withSolutionFor("increment", entry::increment)
+                .withSolutionFor("to_uppercase", entry::toUppercase)
+                .withSolutionFor("letter_to_santa", entry::letterToSanta)
+                .withSolutionFor("count_lines", entry::countLines)
                 .create();
 
         ChallengeSession.forRunner(runner)
