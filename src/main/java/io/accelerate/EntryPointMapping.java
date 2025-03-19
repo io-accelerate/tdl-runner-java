@@ -1,15 +1,11 @@
 package io.accelerate;
 
-import io.accelerate.solutions.ARRS.ArraySumSolution;
 import io.accelerate.solutions.CHK.CheckoutSolution;
-import io.accelerate.solutions.CHL.CheckliteSolution;
 import io.accelerate.solutions.FIZ.FizzBuzzSolution;
 import io.accelerate.solutions.HLO.HelloSolution;
-import io.accelerate.solutions.IRNG.IntRangeSolution;
 import io.accelerate.solutions.SUM.SumSolution;
 import com.google.gson.JsonElement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,20 +21,14 @@ import java.util.List;
 class EntryPointMapping {
     private final SumSolution sumSolution;
     private final HelloSolution helloSolution;
-    private final ArraySumSolution arraySumSolution;
-    private final IntRangeSolution intRangeSolution;
     private final FizzBuzzSolution fizzBuzzSolution;
     private final CheckoutSolution checkoutSolution;
-    private final CheckliteSolution checkliteSolution;
 
     EntryPointMapping() {
         sumSolution = new SumSolution();
         helloSolution = new HelloSolution();
-        arraySumSolution = new ArraySumSolution();
-        intRangeSolution = new IntRangeSolution();
         fizzBuzzSolution = new FizzBuzzSolution();
         checkoutSolution = new CheckoutSolution();
-        checkliteSolution = new CheckliteSolution();
     }
 
     Object sum(List<JsonElement> p) {
@@ -48,28 +38,12 @@ class EntryPointMapping {
     Object hello(List<JsonElement> p) {
         return helloSolution.hello(p.get(0).getAsString());
     }
-
-    Object arraySum(List<JsonElement> p) {
-        ArrayList<Integer> intArray = new ArrayList<>();
-        for (JsonElement jsonElement : p.get(0).getAsJsonArray()) {
-            intArray.add(jsonElement.getAsInt());
-        }
-        return arraySumSolution.compute(intArray);
-    }
-
-    Object intRange(List<JsonElement> p) {
-        return intRangeSolution.generate(p.get(0).getAsInt(), p.get(1).getAsInt());
-    }
-
+    
     Object fizzBuzz(List<JsonElement> p) {
         return fizzBuzzSolution.fizzBuzz(p.get(0).getAsInt());
     }
 
     Object checkout(List<JsonElement> p) {
         return checkoutSolution.checkout(p.get(0).getAsString());
-    }
-
-    Object checklite(List<JsonElement> p) {
-        return checkliteSolution.checklite(p.get(0).getAsString());
     }
 }
