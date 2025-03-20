@@ -4,6 +4,8 @@ import io.accelerate.client.queue.abstractions.ParamAccessor;
 import io.accelerate.solutions.CHK.CheckoutSolution;
 import io.accelerate.solutions.DMO.DemoRound1Solution;
 import io.accelerate.solutions.DMO.DemoRound2Solution;
+import io.accelerate.solutions.DMO.DemoRound3Solution;
+import io.accelerate.solutions.DMO.InventoryItem;
 import io.accelerate.solutions.FIZ.FizzBuzzSolution;
 import io.accelerate.solutions.HLO.HelloSolution;
 import io.accelerate.solutions.SUM.SumSolution;
@@ -28,6 +30,7 @@ class EntryPointMapping {
     private final CheckoutSolution checkoutSolution;
     private final DemoRound1Solution demoRound1Solution;
     private final DemoRound2Solution demoRound2Solution;
+    private final DemoRound3Solution demoRound3Solution;
 
     EntryPointMapping() {
         sumSolution = new SumSolution();
@@ -36,6 +39,7 @@ class EntryPointMapping {
         checkoutSolution = new CheckoutSolution();
         demoRound1Solution = new DemoRound1Solution();
         demoRound2Solution = new DemoRound2Solution();
+        demoRound3Solution = new DemoRound3Solution();
     }
 
     Object sum(List<ParamAccessor> p) {
@@ -54,6 +58,8 @@ class EntryPointMapping {
         return checkoutSolution.checkout(p.get(0).getAsString());
     }
 
+    // Demo Round 1
+    
     Object increment(List<ParamAccessor> p) {
         return demoRound1Solution.increment(p.get(0).getAsInteger());
     }
@@ -69,6 +75,8 @@ class EntryPointMapping {
     Object countLines(List<ParamAccessor> p) {
         return demoRound1Solution.countLines(p.get(0).getAsString());
     }
+    
+    // Demo Round 2
 
     Object arraySum(List<ParamAccessor> p) {
         return demoRound2Solution.arraySum(p.get(0).getAsListOf(Integer.class));
@@ -80,5 +88,19 @@ class EntryPointMapping {
 
     Object filterPass(List<ParamAccessor> p) {
         return demoRound2Solution.filterPass(p.get(0).getAsListOf(Integer.class), p.get(1).getAsInteger());
+    }
+    
+    // Demo Round 3
+
+    Object inventoryAdd(List<ParamAccessor> p) {
+        return demoRound3Solution.inventoryAdd(p.getFirst().getAsObject(InventoryItem.class));
+    }
+
+    Object inventorySize(List<ParamAccessor> p) {
+        return demoRound3Solution.inventorySize();
+    }
+
+    Object inventoryGet(List<ParamAccessor> p) {
+        return demoRound3Solution.inventoryGet(p.getFirst().getAsString());
     }
 }

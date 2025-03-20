@@ -67,6 +67,9 @@ public class SendCommandToServer {
                 .withSolutionFor("array_sum", entry::arraySum)
                 .withSolutionFor("int_range", entry::intRange)
                 .withSolutionFor("filter_pass", entry::filterPass)
+                .withSolutionFor("inventory_add", entry::inventoryAdd)
+                .withSolutionFor("inventory_size", entry::inventorySize)
+                .withSolutionFor("inventory_get", entry::inventoryGet)
                 .create();
 
         ChallengeSession.forRunner(runner)
