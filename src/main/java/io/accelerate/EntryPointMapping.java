@@ -2,14 +2,10 @@ package io.accelerate;
 
 import io.accelerate.client.queue.abstractions.ParamAccessor;
 import io.accelerate.solutions.CHK.CheckoutSolution;
-import io.accelerate.solutions.DMO.DemoRound1Solution;
-import io.accelerate.solutions.DMO.DemoRound2Solution;
-import io.accelerate.solutions.DMO.DemoRound3Solution;
-import io.accelerate.solutions.DMO.InventoryItem;
+import io.accelerate.solutions.DMO.*;
 import io.accelerate.solutions.FIZ.FizzBuzzSolution;
 import io.accelerate.solutions.HLO.HelloSolution;
 import io.accelerate.solutions.SUM.SumSolution;
-import com.google.gson.JsonElement;
 
 import java.util.List;
 
@@ -31,6 +27,7 @@ class EntryPointMapping {
     private final DemoRound1Solution demoRound1Solution;
     private final DemoRound2Solution demoRound2Solution;
     private final DemoRound3Solution demoRound3Solution;
+    private final DemoRound4n5Solution demoRound4n5Solution;
 
     EntryPointMapping() {
         sumSolution = new SumSolution();
@@ -40,6 +37,7 @@ class EntryPointMapping {
         demoRound1Solution = new DemoRound1Solution();
         demoRound2Solution = new DemoRound2Solution();
         demoRound3Solution = new DemoRound3Solution();
+        demoRound4n5Solution = new DemoRound4n5Solution();
     }
 
     Object sum(List<ParamAccessor> p) {
@@ -102,5 +100,11 @@ class EntryPointMapping {
 
     Object inventoryGet(List<ParamAccessor> p) {
         return demoRound3Solution.inventoryGet(p.getFirst().getAsString());
+    }
+
+    // Demo Round 4 and 5
+
+    Object waves(List<ParamAccessor> p) {
+        return demoRound4n5Solution.waves(p.getFirst().getAsInteger());
     }
 }

@@ -70,6 +70,7 @@ public class SendCommandToServer {
                 .withSolutionFor("inventory_add", entry::inventoryAdd)
                 .withSolutionFor("inventory_size", entry::inventorySize)
                 .withSolutionFor("inventory_get", entry::inventoryGet)
+                .withSolutionFor("waves", entry::waves)
                 .create();
 
         ChallengeSession.forRunner(runner)
