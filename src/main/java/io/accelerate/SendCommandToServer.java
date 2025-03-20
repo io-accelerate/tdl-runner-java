@@ -64,6 +64,9 @@ public class SendCommandToServer {
                 .withSolutionFor("to_uppercase", entry::toUppercase)
                 .withSolutionFor("letter_to_santa", entry::letterToSanta)
                 .withSolutionFor("count_lines", entry::countLines)
+                .withSolutionFor("array_sum", entry::arraySum)
+                .withSolutionFor("int_range", entry::intRange)
+                .withSolutionFor("filter_pass", entry::filterPass)
                 .create();
 
         ChallengeSession.forRunner(runner)

@@ -1,7 +1,9 @@
 package io.accelerate;
 
+import io.accelerate.client.queue.abstractions.ParamAccessor;
 import io.accelerate.solutions.CHK.CheckoutSolution;
 import io.accelerate.solutions.DMO.DemoRound1Solution;
+import io.accelerate.solutions.DMO.DemoRound2Solution;
 import io.accelerate.solutions.FIZ.FizzBuzzSolution;
 import io.accelerate.solutions.HLO.HelloSolution;
 import io.accelerate.solutions.SUM.SumSolution;
@@ -25,6 +27,7 @@ class EntryPointMapping {
     private final FizzBuzzSolution fizzBuzzSolution;
     private final CheckoutSolution checkoutSolution;
     private final DemoRound1Solution demoRound1Solution;
+    private final DemoRound2Solution demoRound2Solution;
 
     EntryPointMapping() {
         sumSolution = new SumSolution();
@@ -32,37 +35,50 @@ class EntryPointMapping {
         fizzBuzzSolution = new FizzBuzzSolution();
         checkoutSolution = new CheckoutSolution();
         demoRound1Solution = new DemoRound1Solution();
+        demoRound2Solution = new DemoRound2Solution();
     }
 
-    Object sum(List<JsonElement> p) {
-        return sumSolution.compute(p.get(0).getAsInt(), p.get(1).getAsInt());
+    Object sum(List<ParamAccessor> p) {
+        return sumSolution.compute(p.get(0).getAsInteger(), p.get(1).getAsInteger());
     }
 
-    Object hello(List<JsonElement> p) {
+    Object hello(List<ParamAccessor> p) {
         return helloSolution.hello(p.get(0).getAsString());
     }
     
-    Object fizzBuzz(List<JsonElement> p) {
-        return fizzBuzzSolution.fizzBuzz(p.get(0).getAsInt());
+    Object fizzBuzz(List<ParamAccessor> p) {
+        return fizzBuzzSolution.fizzBuzz(p.get(0).getAsInteger());
     }
 
-    Object checkout(List<JsonElement> p) {
+    Object checkout(List<ParamAccessor> p) {
         return checkoutSolution.checkout(p.get(0).getAsString());
     }
 
-    Object increment(List<JsonElement> p) {
-        return demoRound1Solution.increment(p.get(0).getAsInt());
+    Object increment(List<ParamAccessor> p) {
+        return demoRound1Solution.increment(p.get(0).getAsInteger());
     }
 
-    Object toUppercase(List<JsonElement> p) {
+    Object toUppercase(List<ParamAccessor> p) {
         return demoRound1Solution.toUppercase(p.get(0).getAsString());
     }
 
-    Object letterToSanta(List<JsonElement> p) {
+    Object letterToSanta(List<ParamAccessor> p) {
         return demoRound1Solution.letterToSanta();
     }
 
-    Object countLines(List<JsonElement> p) {
+    Object countLines(List<ParamAccessor> p) {
         return demoRound1Solution.countLines(p.get(0).getAsString());
+    }
+
+    Object arraySum(List<ParamAccessor> p) {
+        return demoRound2Solution.arraySum(p.get(0).getAsListOf(Integer.class));
+    }
+
+    Object intRange(List<ParamAccessor> p) {
+        return demoRound2Solution.intRange(p.get(0).getAsInteger(), p.get(1).getAsInteger());
+    }
+
+    Object filterPass(List<ParamAccessor> p) {
+        return demoRound2Solution.filterPass(p.get(0).getAsListOf(Integer.class), p.get(1).getAsInteger());
     }
 }
