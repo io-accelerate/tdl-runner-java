@@ -93,7 +93,7 @@ class EntryPointMapping {
     // Demo Round 3
 
     Object inventoryAdd(List<ParamAccessor> p) {
-        return demoRound3Solution.inventoryAdd(p.getFirst().getAsObject(InventoryItem.class));
+        return demoRound3Solution.inventoryAdd(p.getFirst().getAsObject(InventoryItem.class), p.get(1).getAsInteger());
     }
 
     Object inventorySize(List<ParamAccessor> p) {
