@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.accelerate:tdl-client-java:0.28.2'
+    implementation 'io.accelerate:tdl-client-java:0.29.1'
 
     testImplementation('org.junit.jupiter:junit-jupiter:5.9.1')
     testImplementation('org.junit.platform:junit-platform-suite:1.8.1')
