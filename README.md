@@ -7,7 +7,7 @@
 
 ## 2. How to start
 
-- Open `src/main/java/io/accelerate/SendCommandToServer.java`
+- Open `src/main/java/io/accelerate/SendCommandToServer.java` in your favorite IDE
 - Read the comments as documentation, they will guide through the rest of the setup
 
 
