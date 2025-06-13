@@ -1,12 +1,14 @@
 package io.accelerate;
 
 import io.accelerate.client.queue.abstractions.ParamAccessor;
+import io.accelerate.solutions.AMZ.AmazingSolution;
 import io.accelerate.solutions.CHK.CheckoutSolution;
 import io.accelerate.solutions.RBT.RabbitHoleSolution;
 import io.accelerate.solutions.DMO.*;
 import io.accelerate.solutions.FIZ.FizzBuzzSolution;
 import io.accelerate.solutions.HLO.HelloSolution;
 import io.accelerate.solutions.SUM.SumSolution;
+import io.accelerate.solutions.ULT.UltimateSolution;
 
 import java.util.List;
 
@@ -26,6 +28,8 @@ class EntryPointMapping {
     private final FizzBuzzSolution fizzBuzzSolution;
     private final CheckoutSolution checkoutSolution;
     private final RabbitHoleSolution rabbitHoleSolution;
+    private final AmazingSolution amazingSolution;
+    private final UltimateSolution ultimateSolution;
     private final DemoRound1Solution demoRound1Solution;
     private final DemoRound2Solution demoRound2Solution;
     private final DemoRound3Solution demoRound3Solution;
@@ -37,6 +41,8 @@ class EntryPointMapping {
         fizzBuzzSolution = new FizzBuzzSolution();
         checkoutSolution = new CheckoutSolution();
         rabbitHoleSolution = new RabbitHoleSolution();
+        amazingSolution = new AmazingSolution();
+        ultimateSolution = new UltimateSolution();
         demoRound1Solution = new DemoRound1Solution();
         demoRound2Solution = new DemoRound2Solution();
         demoRound3Solution = new DemoRound3Solution();
@@ -65,6 +71,22 @@ class EntryPointMapping {
                 p.get(1).getAsInteger(),
                 p.get(2).getAsString(),
                 p.get(3).getAsMapOf(String.class)
+        );
+    }
+
+    Object amazingMaze(List<ParamAccessor> p) {
+        return amazingSolution.amazingMaze(
+                p.get(0).getAsInteger(),
+                p.get(1).getAsInteger(),
+                p.get(2).getAsMapOf(String.class)
+        );
+    }
+
+    Object ultimateMaze(List<ParamAccessor> p) {
+        return ultimateSolution.ultimateMaze(
+                p.get(0).getAsInteger(),
+                p.get(1).getAsInteger(),
+                p.get(2).getAsMapOf(String.class)
         );
     }
 
