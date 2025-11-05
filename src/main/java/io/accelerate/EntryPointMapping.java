@@ -4,6 +4,7 @@ import io.accelerate.client.queue.abstractions.ParamAccessor;
 import io.accelerate.solutions.AMZ.AmazingSolution;
 import io.accelerate.solutions.CHK.CheckoutSolution;
 import io.accelerate.solutions.RBT.RabbitHoleSolution;
+import io.accelerate.solutions.HOC.HouseOfCardsSolution;
 import io.accelerate.solutions.DMO.*;
 import io.accelerate.solutions.FIZ.FizzBuzzSolution;
 import io.accelerate.solutions.HLO.HelloSolution;
@@ -28,6 +29,7 @@ class EntryPointMapping {
     private final FizzBuzzSolution fizzBuzzSolution;
     private final CheckoutSolution checkoutSolution;
     private final RabbitHoleSolution rabbitHoleSolution;
+    private final HouseOfCardsSolution houseOfCardsSolution;
     private final AmazingSolution amazingSolution;
     private final UltimateSolution ultimateSolution;
     private final DemoRound1Solution demoRound1Solution;
@@ -41,6 +43,7 @@ class EntryPointMapping {
         fizzBuzzSolution = new FizzBuzzSolution();
         checkoutSolution = new CheckoutSolution();
         rabbitHoleSolution = new RabbitHoleSolution();
+        houseOfCardsSolution = new HouseOfCardsSolution();
         amazingSolution = new AmazingSolution();
         ultimateSolution = new UltimateSolution();
         demoRound1Solution = new DemoRound1Solution();
@@ -71,6 +74,13 @@ class EntryPointMapping {
                 p.get(1).getAsInteger(),
                 p.get(2).getAsString(),
                 p.get(3).getAsMapOf(String.class)
+        );
+    }
+
+    Object renderHouse(List<ParamAccessor> p) {
+        return houseOfCardsSolution.renderHouse(
+                p.get(0).getAsString(),
+                p.get(1).getAsMapOf(String.class)
         );
     }
 
